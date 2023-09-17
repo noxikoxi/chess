@@ -1,17 +1,19 @@
 import pygame
 import sys
+from Classes.Pawn import Pawn
+from Classes.Players import Player
 
 WINDOW_HEIGHT, WINDOW_WIDTH = 800, 800
 BLOCK_SIZE = WINDOW_WIDTH / 8
 
 
 class Block:
-    def __init__(self, x, y, color, piece=None,):
-        self.x = x
-        self.y = y
+    def __init__(self, row, col, color, piece=None,):
+        self.row = row
+        self.col = col
         self.piece = piece
         self.color = color
-        self.rect = pygame.Rect(int(BLOCK_SIZE*x), int(BLOCK_SIZE*y), BLOCK_SIZE, BLOCK_SIZE)
+        self.rect = pygame.Rect(int(BLOCK_SIZE*col), int(BLOCK_SIZE*row), BLOCK_SIZE, BLOCK_SIZE)
 
 
 class Game:
@@ -27,12 +29,15 @@ class Game:
             if i % 8 == 7 and i != 0:
                 j = j + 1
 
-        for i in range(64):
-            print(f'Block: x->{self.board[i].x}, y->{self.board[i].y}')
+        self.player = Player('white', 0)
+        self.player.fillPieces()
 
     def draw(self):
         for block in self.board:
             pygame.draw.rect(self.display_surface, block.color, block.rect)
+
+        for piece in self.player.pieces:
+            self.display_surface.blit(piece.image, piece.getRealXY())
 
     def run(self):
         while True:
