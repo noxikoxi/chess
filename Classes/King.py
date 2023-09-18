@@ -9,3 +9,8 @@ class King(Piece):
         super().__init__(row, col, color)
         temp = 'white_king.png' if color == 'white' else 'black_king.png'
         self.image = transform.scale(load(f'Assets/{temp}').convert_alpha(), (BLOCK_SIZE, BLOCK_SIZE))
+
+    def getPossibleMoves(self):
+        return [(self.row + 1, self.col - 1), (self.row + 1, self.col), (self.row + 1, self.col + 1), (self.row, self.col + 1),
+                (self.row - 1, self.col + 1), (self.row - 1, self.col), (self.row - 1, self.col - 1), (self.row, self.col - 1)
+                ]

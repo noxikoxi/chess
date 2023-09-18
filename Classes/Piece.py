@@ -13,4 +13,9 @@ class Piece:
 
     def getRealXY(self):
         return self.col * BLOCK_SIZE, self.row * BLOCK_SIZE
+    def getPossibleMoves(self):
+        return []
 
+    def move(self, row, col):
+        self.row = row
+        self.col = col

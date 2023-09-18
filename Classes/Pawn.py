@@ -24,8 +24,7 @@ class Pawn(Piece):
                 return [(self.row + 1, self.col)]
 
     def move(self, row, col):
-        self.row = row
-        self.col = col
+        super().move(row, col)
         if self.firstMove:
             self.firstMove = False
 

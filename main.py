@@ -1,8 +1,66 @@
 import pygame
 import sys
-from Classes.Players import Player
+from Classes.Players import *
 from settings import BLOCK_SIZE, WINDOW_HEIGHT, WINDOW_WIDTH, BOARD_COLORS, FONT_COLOR, OFFSET
 
+def checkIfValid(moves):
+    return [x for x in moves if 0 <= x[0] <= 7 and 0 <= x[1] <= 7]
+
+def checkOrthogonal(piece, board):
+    moves = []
+    #N
+    for i in range(1, 8):
+        if 0 <= piece.row - i <= 7 and 0 <= piece.col <= 7:
+            block = board[Block.getBoardIndexRowCol(piece.row - i, piece.col)]
+            if block.piece is not None:
+                if block.piece.color != piece.color:
+                        moves = moves + [(piece.row - i, piece.col)]
+                elif block.piece.color == piece.color:
+                    break
+            else:
+                moves = moves + [(piece.row - i, piece.col)]
+
+    #E
+    for i in range(1, 8):
+        if 0 <= piece.row <= 7 and 0 <= piece.col + i <= 7:
+            block = board[Block.getBoardIndexRowCol(piece.row, piece.col + i)]
+            if block.piece is not None:
+                if block.piece.color != piece.color:
+                        moves = moves + [(piece.row, piece.col + i)]
+                elif block.piece.color == piece.color:
+                    break
+            else:
+                moves = moves + [(piece.row, piece.col + i)]
+
+    #S
+    for i in range(1, 8):
+        if 0 <= piece.row + i <= 7 and 0 <= piece.col <= 7:
+            block = board[Block.getBoardIndexRowCol(piece.row + i, piece.col)]
+            if block.piece is not None:
+                if block.piece.color != piece.color:
+                        moves = moves + [(piece.row + i, piece.col)]
+                elif block.piece.color == piece.color:
+                    break
+            else:
+                moves = moves + [(piece.row + i, piece.col)]
+
+    #W
+    for i in range(1, 8):
+        if 0 <= piece.row <= 7 and 0 <= piece.col - i <= 7:
+            block = board[Block.getBoardIndexRowCol(piece.row, piece.col - i)]
+            if block.piece is not None:
+                if block.piece.color != piece.color:
+                        moves = moves + [(piece.row, piece.col - i)]
+                elif block.piece.color == piece.color:
+                    break
+            else:
+                moves = moves + [(piece.row, piece.col - i)]
+
+    return moves
+def checkConditions(piece, game):
+    if isinstance(piece, Rook):
+        moves = checkOrthogonal(piece, game.board)
+    return moves
 
 class Block:
     def __init__(self, row, col, color, piece=None,):
@@ -114,6 +172,8 @@ class Game:
                     self.__showPossibleMoves()
             elif self.selectedPiece is not None:
                 moves = self.selectedPiece.getPossibleMoves()
+                if not moves:
+                    moves = checkConditions(self.selectedPiece, self)
                 if (selected_block.row, selected_block.col) in moves:  # make a move
                     # print(f'PIECE -> {self.selectedPiece.row},{self.selectedPiece.col}')
                     # print(f'BLOCK -> {selected_block.row},{selected_block.col}')
@@ -136,7 +196,12 @@ class Game:
         # print(f'OLD -> {Block.getBoardIndexRowCol(oldRow, oldCol)}')
 
     def __showPossibleMoves(self):
-        for move in self.selectedPiece.getPossibleMoves():  # Check if move is valid
+        moves = self.selectedPiece.getPossibleMoves()
+        if not moves:
+            moves = checkConditions(self.selectedPiece, self)
+        else:
+            moves = checkIfValid(moves)
+        for move in moves:  # Check if move is valid
             if 7 < move[0] < 0 or 7 < move[1] < 0:
                 continue
             block = self.board[Block.getBoardIndexRowCol(move[0], move[1])]
@@ -170,7 +235,6 @@ class Game:
             self.update()
             self.draw()
             pygame.display.update()
-
 
 if __name__ == "__main__":
     gra = Game()
