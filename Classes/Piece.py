@@ -9,7 +9,8 @@ class Piece:
         self.image = None
 
     def getSquare(self):
-        return self.col * 8 + self.row * 1
+        return self.col * 1 + self.row * 8
 
     def getRealXY(self):
         return self.col * BLOCK_SIZE, self.row * BLOCK_SIZE
+

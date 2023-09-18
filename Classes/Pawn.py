@@ -9,3 +9,23 @@ class Pawn(Piece):
         super().__init__(row, col, color)
         temp = 'white_pawn.png' if color == 'white' else 'black_pawn.png'
         self.image = transform.scale(load(f'Assets/{temp}').convert_alpha(), (BLOCK_SIZE, BLOCK_SIZE))
+        self.firstMove = True
+
+    def getPossibleMoves(self):
+        if self.color == 'white':
+            if self.firstMove:
+                return [(self.row - 1, self.col), (self.row - 2, self.col)]
+            else:
+                return [(self.row - 1, self.col)]
+        else:
+            if self.firstMove:
+                return [(self.row + 1, self.col), (self.row + 2, self.col)]
+            else:
+                return [(self.row + 1, self.col)]
+
+    def move(self, row, col):
+        self.row = row
+        self.col = col
+        if self.firstMove:
+            self.firstMove = False
+
