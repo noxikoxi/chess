@@ -1,103 +1,8 @@
 import pygame
 import sys
 from Classes.Players import *
+from Classes.Block import Block
 from settings import BLOCK_SIZE, WINDOW_HEIGHT, WINDOW_WIDTH, BOARD_COLORS, FONT_COLOR, OFFSET
-
-def checkIfValid(moves):
-    return [x for x in moves if 0 <= x[0] <= 7 and 0 <= x[1] <= 7]
-
-def checkOrthogonal(piece, board):
-    moves = []
-    #N
-    for i in range(1, 8):
-        if 0 <= piece.row - i <= 7 and 0 <= piece.col <= 7:
-            block = board[Block.getBoardIndexRowCol(piece.row - i, piece.col)]
-            if block.piece is not None:
-                if block.piece.color != piece.color:
-                        moves = moves + [(piece.row - i, piece.col)]
-                elif block.piece.color == piece.color:
-                    break
-            else:
-                moves = moves + [(piece.row - i, piece.col)]
-
-    #E
-    for i in range(1, 8):
-        if 0 <= piece.row <= 7 and 0 <= piece.col + i <= 7:
-            block = board[Block.getBoardIndexRowCol(piece.row, piece.col + i)]
-            if block.piece is not None:
-                if block.piece.color != piece.color:
-                        moves = moves + [(piece.row, piece.col + i)]
-                elif block.piece.color == piece.color:
-                    break
-            else:
-                moves = moves + [(piece.row, piece.col + i)]
-
-    #S
-    for i in range(1, 8):
-        if 0 <= piece.row + i <= 7 and 0 <= piece.col <= 7:
-            block = board[Block.getBoardIndexRowCol(piece.row + i, piece.col)]
-            if block.piece is not None:
-                if block.piece.color != piece.color:
-                        moves = moves + [(piece.row + i, piece.col)]
-                elif block.piece.color == piece.color:
-                    break
-            else:
-                moves = moves + [(piece.row + i, piece.col)]
-
-    #W
-    for i in range(1, 8):
-        if 0 <= piece.row <= 7 and 0 <= piece.col - i <= 7:
-            block = board[Block.getBoardIndexRowCol(piece.row, piece.col - i)]
-            if block.piece is not None:
-                if block.piece.color != piece.color:
-                        moves = moves + [(piece.row, piece.col - i)]
-                elif block.piece.color == piece.color:
-                    break
-            else:
-                moves = moves + [(piece.row, piece.col - i)]
-
-    return moves
-def checkConditions(piece, game):
-    if isinstance(piece, Rook):
-        moves = checkOrthogonal(piece, game.board)
-    return moves
-
-class Block:
-    def __init__(self, row, col, color, piece=None,):
-        self.row = row
-        self.col = col
-        self.piece = piece
-        self.color = color
-        self.naturalColor = color
-        self.active = False
-        self.__updateRect()
-
-    def glow(self):
-        self.color = (0, 220, 32)
-        self.__updateRect()
-        self.active = True
-
-    def danger(self):
-        self.color = (240, 0, 50)
-        self.__updateRect()
-        self.active = True
-
-    def resetColor(self):
-        self.color = self.naturalColor
-        self.__updateRect()
-        self.active = False
-
-    def __updateRect(self):
-        self.rect = pygame.Rect(int(BLOCK_SIZE * self.col), int(BLOCK_SIZE * self.row), BLOCK_SIZE, BLOCK_SIZE)
-
-    @staticmethod
-    def getBoardIndexXY(x, y):
-        return int(((y - OFFSET) // BLOCK_SIZE) * 8 + ((x - OFFSET) // BLOCK_SIZE) * 1)
-
-    @staticmethod
-    def getBoardIndexRowCol(row, col):
-        return col * 1 + row * 8
-
 
 class Game:
     def __init__(self):
@@ -106,7 +11,7 @@ class Game:
         self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         self.gameSurface = pygame.Surface((WINDOW_WIDTH-OFFSET, WINDOW_HEIGHT-OFFSET))
         self.turns = 0
-        self.selectedPiece = None  # Only one block may be active at one time
+        self.selectedPiece = None  # Only one piece may be active at one time
 
         pygame.display.set_caption('Chess')
         self.game_font = pygame.font.Font("Fonts/BebasNeue-Regular.ttf", 70)
@@ -159,28 +64,30 @@ class Game:
         # mouse cursor is in game board
         if OFFSET <= mouse_pos[0] < WINDOW_WIDTH and OFFSET <= mouse_pos[1] < WINDOW_HEIGHT:
             selected_block = self.board[Block.getBoardIndexXY(mouse_pos[0], mouse_pos[1])]
+            if selected_block.piece is None and self.selectedPiece is None:
+                pass
+            elif selected_block.piece is not None and self.selectedPiece is None:  # Select
+                # Select a piece
+                selected_block.glow()
+                self.selectedPiece = selected_block.piece
+                self.__showPossibleMoves()
+            elif selected_block.piece == self.selectedPiece:  # Undo select and reset colors
+                selected_block.resetColor()
+                self.__showPossibleMoves(reset=True)
+                self.selectedPiece = None
+            elif self.selectedPiece is not None:  # make a move
+                moves = self.selectedPiece.getPossibleMoves(self.board)
 
-            if selected_block.piece is not None:  # Block has a piece
-                print("selected")
-                if selected_block.active:  # Reset colors
-                    selected_block.resetColor()
-                    self.__showPossibleMoves()
-                    self.selectedPiece = None
-                elif self.selectedPiece is None:  # Block is not active, and we don't have selected piece
-                    selected_block.glow()
-                    self.selectedPiece = selected_block.piece
-                    self.__showPossibleMoves()
-            elif self.selectedPiece is not None:
-                moves = self.selectedPiece.getPossibleMoves()
-                if not moves:
-                    moves = checkConditions(self.selectedPiece, self)
                 if (selected_block.row, selected_block.col) in moves:  # make a move
-                    # print(f'PIECE -> {self.selectedPiece.row},{self.selectedPiece.col}')
-                    # print(f'BLOCK -> {selected_block.row},{selected_block.col}')
-
                     # Reset active blocks
                     self.board[Block.getBoardIndexRowCol(self.selectedPiece.row, self.selectedPiece.col)].resetColor()
-                    self.__showPossibleMoves()
+                    self.__showPossibleMoves(reset=True)
+
+                    if selected_block.piece is not None and selected_block.piece.color != self.selectedPiece.color: # attack
+                        if selected_block.piece.color == 'white':
+                            self.player.pieces.remove(selected_block.piece)
+                        else:
+                            self.player2.pieces.remove(selected_block.piece)
                     # Change Piece pos in board
                     self.__changeBoard(self.selectedPiece, selected_block.row, selected_block.col,
                                        self.selectedPiece.row, self.selectedPiece.col)
@@ -191,31 +98,22 @@ class Game:
     def __changeBoard(self, piece, row, col, oldRow, oldCol):
         self.board[Block.getBoardIndexRowCol(row, col)].piece = piece
         self.board[Block.getBoardIndexRowCol(oldRow, oldCol)].piece = None
-        # print(row, col ,oldRow, oldCol)
-        # print(f'NEW -> {Block.getBoardIndexRowCol(row, col)}')
-        # print(f'OLD -> {Block.getBoardIndexRowCol(oldRow, oldCol)}')
 
-    def __showPossibleMoves(self):
-        moves = self.selectedPiece.getPossibleMoves()
-        if not moves:
-            moves = checkConditions(self.selectedPiece, self)
-        else:
-            moves = checkIfValid(moves)
-        for move in moves:  # Check if move is valid
-            if 7 < move[0] < 0 or 7 < move[1] < 0:
-                continue
+    def __showPossibleMoves(self, reset=False):
+        moves = self.selectedPiece.getPossibleMoves(self.board)
+
+        for move in moves:
             block = self.board[Block.getBoardIndexRowCol(move[0], move[1])]
-
-            if block.piece is not None:
-                if self.turns == 0:
-                    if block.piece.color == 'black' and not block.active:
-                        block.danger()
-                    else:
-                        block.resetColor()
-            elif not block.active:
-                block.glow()
-            else:
+            if reset:
                 block.resetColor()
+            else:
+                if block.piece is not None:
+                    if block.piece.color != self.selectedPiece.col:
+                        print(block.piece.color)
+                        print(self.selectedPiece.color)
+                        block.danger()
+                else:
+                    block.glow()
 
     def update(self):
         pass

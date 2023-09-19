@@ -1,6 +1,6 @@
 from pygame.image import load
 from pygame import transform
-from Classes.Piece import Piece
+from Classes.Piece import Piece, returnValidMoves
 from settings import BLOCK_SIZE
 
 
@@ -11,17 +11,18 @@ class Pawn(Piece):
         self.image = transform.scale(load(f'Assets/{temp}').convert_alpha(), (BLOCK_SIZE, BLOCK_SIZE))
         self.firstMove = True
 
-    def getPossibleMoves(self):
+    def getPossibleMoves(self, board):
         if self.color == 'white':
             if self.firstMove:
-                return [(self.row - 1, self.col), (self.row - 2, self.col)]
+                moves = [(self.row - 1, self.col), (self.row - 2, self.col)]
             else:
-                return [(self.row - 1, self.col)]
+                moves = [(self.row - 1, self.col)]
         else:
             if self.firstMove:
-                return [(self.row + 1, self.col), (self.row + 2, self.col)]
+                moves = [(self.row + 1, self.col), (self.row + 2, self.col)]
             else:
-                return [(self.row + 1, self.col)]
+                moves = [(self.row + 1, self.col)]
+        return returnValidMoves(moves)
 
     def move(self, row, col):
         super().move(row, col)

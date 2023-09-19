@@ -12,10 +12,9 @@ class Queen(Piece):
         temp = 'white_queen.png' if color == 'white' else 'black_queen.png'
         self.image = transform.scale(load(f'Assets/{temp}').convert_alpha(), (BLOCK_SIZE, BLOCK_SIZE))
 
-    def getPossibleMoves(self):
-        moves = []
+    def getPossibleMoves(self, board):
         a1 = Rook(self.row, self.col, self.color)
         a2 = Bishop(self.row, self.col, self.color)
-        moves = moves + Rook.getPossibleMoves(a1)
-        moves = moves + Bishop.getPossibleMoves(a2)
+        moves = Rook.getPossibleMoves(a1, board)
+        moves = moves + Bishop.getPossibleMoves(a2, board)
         return moves
