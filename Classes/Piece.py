@@ -5,19 +5,10 @@ from Classes.Block import Block
 def returnValidMoves(moves):
     return [x for x in moves if 0 <= x[0] <= 7 and 0 <= x[1] <= 7]
 
+
 def checkStackMoves(color, moves, board):
     return [x for x in moves if board[Block.getBoardIndexRowCol(x[0], x[1])].piece is None
             or board[Block.getBoardIndexRowCol(x[0], x[1])].piece.color != color]
-
-
-def checkIfFriendlyPieceInMoves(piece, board, moves):
-
-    for move in moves:
-        block_piece = board[Block.getBoardIndexRowCol(move[0], move[1])].piece
-        if block_piece:
-            if piece.color == block_piece.color:
-                moves.remove(move)
-    return moves
 
 
 class Piece:

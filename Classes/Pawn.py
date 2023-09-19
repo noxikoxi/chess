@@ -1,8 +1,17 @@
+import pygame.event
 from pygame.image import load
 from pygame import transform
 from Classes.Piece import Piece, returnValidMoves
-from settings import BLOCK_SIZE
+from settings import BLOCK_SIZE, PAWN_UPGRADE
 from main import Block
+
+
+def checkIfFreeBlock(board, row, col, distance=1):
+    return board[Block.getBoardIndexRowCol(row - distance, col)].piece is None
+
+
+def checkIfEnemy(board, color, row, col):
+    return board[Block.getBoardIndexRowCol(row, col)].piece.color != color
 
 
 class Pawn(Piece):
@@ -13,35 +22,37 @@ class Pawn(Piece):
         self.firstMove = True
 
     def getPossibleMoves(self, board):
+        moves = []
         if self.color == 'white':
-            if self.firstMove:
-                moves = [(self.row - 1, self.col), (self.row - 2, self.col)]
-            else:
-                moves = [(self.row - 1, self.col)]
-
-            #Check if enemy in front of pawn
-            if board[Block.getBoardIndexRowCol(self.row - 1, self.col - 1)].piece is not None and board[Block.getBoardIndexRowCol(self.row - 1, self.col - 1)].piece.color != self.color:
-                moves = moves + [(self.row - 1, self.col - 1)]
-            if board[Block.getBoardIndexRowCol(self.row - 1, self.col + 1)].piece is not None and board[Block.getBoardIndexRowCol(self.row - 1, self.col + 1)].piece.color != self.color:
-                moves = moves + [(self.row - 1, self.col + 1)]
-
-        #For black pawns
-        else:
-            if self.firstMove:
-                moves = [(self.row + 1, self.col), (self.row + 2, self.col)]
-            else:
-                moves = [(self.row + 1, self.col)]
+            if checkIfFreeBlock(board, self.row, self.col):
+                moves = moves + [(self.row - 1, self.col)]
+                if self.firstMove and checkIfFreeBlock(board, self.row, self.col, 2):
+                    moves = moves + [(self.row - 2, self.col)]
 
             # Check if enemy in front of pawn
-            if board[Block.getBoardIndexRowCol(self.row + 1, self.col - 1)].piece is not None and board[Block.getBoardIndexRowCol(self.row + 1, self.col - 1)].piece.color != self.color:
+            if checkIfFreeBlock(board, self.row, self.col - 1) is False and checkIfEnemy(board, self.color, self.row - 1, self.col - 1):
+                moves = moves + [(self.row - 1, self.col - 1)]
+            if checkIfFreeBlock(board, self.row, self.col + 1) is False and checkIfEnemy(board, self.color, self.row - 1, self.col + 1):
+                moves = moves + [(self.row - 1, self.col + 1)]
+
+        # For black pawns
+        else:
+            if checkIfFreeBlock(board, self.row, self.col, distance=-1):
+                moves = moves + [(self.row + 1, self.col)]
+                if self.firstMove and checkIfFreeBlock(board, self.row, self.col, distance=-2):
+                    moves = moves + [(self.row + 2, self.col)]
+
+            # Check if enemy in front of pawn
+            if checkIfFreeBlock(board, self.row, self.col - 1, distance=-1) is False and checkIfEnemy(board, self.color, self.row + 1, self.col - 1):
                 moves = moves + [(self.row + 1, self.col - 1)]
-            if board[Block.getBoardIndexRowCol(self.row + 1, self.col + 1)].piece is not None and board[Block.getBoardIndexRowCol(self.row + 1, self.col + 1)].piece.color != self.color:
+            if checkIfFreeBlock(board, self.row, self.col + 1, distance=-1) is False and checkIfEnemy(board, self.color, self.row + 1, self.col + 1):
                 moves = moves + [(self.row + 1, self.col + 1)]
 
         return returnValidMoves(moves)
 
     def move(self, row, col):
         super().move(row, col)
+        if self.color == 'white' and self.row == 0 or self.color == 'black' and self.row == 7:
+            pygame.event.post(pygame.event.Event(PAWN_UPGRADE))
         if self.firstMove:
             self.firstMove = False
-

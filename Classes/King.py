@@ -15,4 +15,4 @@ class King(Piece):
                                                              (self.row + 1, self.col + 1), (self.row, self.col + 1),
                                                              (self.row - 1, self.col + 1), (self.row - 1, self.col),
                                                              (self.row - 1, self.col - 1), (self.row, self.col - 1)]),
-                                                                board)
+                               board)

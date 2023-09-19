@@ -1,6 +1,7 @@
 from pygame import Rect
 from settings import BLOCK_SIZE, OFFSET
 
+
 class Block:
     def __init__(self, row, col, color, piece=None,):
         self.row = row

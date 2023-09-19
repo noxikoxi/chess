@@ -2,7 +2,8 @@ import pygame
 import sys
 from Classes.Players import *
 from Classes.Block import Block
-from settings import BLOCK_SIZE, WINDOW_HEIGHT, WINDOW_WIDTH, BOARD_COLORS, FONT_COLOR, OFFSET
+from settings import BLOCK_SIZE, WINDOW_HEIGHT, WINDOW_WIDTH, BOARD_COLORS, FONT_COLOR, OFFSET, PAWN_UPGRADE
+
 
 class Game:
     def __init__(self):
@@ -37,6 +38,31 @@ class Game:
 
         for piece in self.player2.pieces:
             self.board[piece.getSquare()].piece = piece
+
+    def pawnUpgrade(self):
+        print(self.selectedPiece)
+        piece_name = input("Choose which piece would you like -> rook, queen, bishop, knight\n")
+
+        match piece_name:
+            case 'rook':
+                piece = Rook
+            case 'queen':
+                piece = Queen
+            case 'bishop':
+                piece = Bishop
+            case 'knight':
+                piece = Knight
+            case _:
+                piece = Pawn
+        temp = piece(self.selectedPiece.row, self.selectedPiece.col, self.selectedPiece.color)
+        self.board[Block.getBoardIndexRowCol(self.selectedPiece.row, self.selectedPiece.col)].piece = temp
+        if self.selectedPiece.color == 'white':
+            player = self.player
+        else:
+            player = self.player2
+
+        player.pieces.remove(self.selectedPiece)
+        player.pieces.append(temp)
 
     def draw(self):
         # background
@@ -93,6 +119,9 @@ class Game:
                                        self.selectedPiece.row, self.selectedPiece.col)
                     # Move
                     self.selectedPiece.move(selected_block.row, selected_block.col)
+                    print(self.selectedPiece)
+                    if pygame.event.poll().type == PAWN_UPGRADE:
+                        self.pawnUpgrade()
                     self.selectedPiece = None
 
     def __changeBoard(self, piece, row, col, oldRow, oldCol):
@@ -133,6 +162,7 @@ class Game:
             self.update()
             self.draw()
             pygame.display.update()
+
 
 if __name__ == "__main__":
     gra = Game()
