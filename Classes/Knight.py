@@ -1,6 +1,6 @@
 from pygame.image import load
 from pygame import transform
-from Classes.Piece import Piece, returnValidMoves
+from Classes.Piece import Piece, returnValidMoves, checkStackMoves
 from settings import BLOCK_SIZE
 
 
@@ -11,6 +11,6 @@ class Knight(Piece):
         self.image = transform.scale(load(f'Assets/{temp}').convert_alpha(), (BLOCK_SIZE, BLOCK_SIZE))
 
     def getPossibleMoves(self, board):
-        return returnValidMoves([(self.row + 2, self.col + 1), (self.row + 2, self.col - 1), (self.row - 2, self.col + 1),
+        return checkStackMoves(self.color, returnValidMoves([(self.row + 2, self.col + 1), (self.row + 2, self.col - 1), (self.row - 2, self.col + 1),
                                  (self.row - 2, self.col - 1), (self.row + 1, self.col + 2), (self.row + 1, self.col - 2),
-                                 (self.row - 1, self.col + 2), (self.row - 1, self.col - 2)])
+                                 (self.row - 1, self.col + 2), (self.row - 1, self.col - 2)]), board)
