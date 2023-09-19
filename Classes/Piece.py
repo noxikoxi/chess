@@ -17,6 +17,7 @@ class Piece:
         self.col = col
         self.color = color
         self.image = None
+        self.movescount = 0
 
     def getSquare(self):
         return self.col * 1 + self.row * 8
@@ -27,6 +28,7 @@ class Piece:
     def getPossibleMoves(self, board):
         return []
 
-    def move(self, row, col):
+    def move(self, row, col, board = False):
         self.row = row
         self.col = col
+        self.movescount = self.movescount + 1

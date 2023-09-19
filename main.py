@@ -70,7 +70,7 @@ class Game:
             pygame.draw.rect(self.gameSurface, block.color, block.rect)
         # Text
         for i in range(8):
-            self.display_surface.blit(self.game_font.render(f'{i+1}', False, FONT_COLOR),
+            self.display_surface.blit(self.game_font.render(f'{8-i}', False, FONT_COLOR),
                                       (OFFSET/4, i * BLOCK_SIZE + OFFSET + 10))
         for i, text in enumerate(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']):
             self.display_surface.blit(self.game_font.render(f'{text}', False, FONT_COLOR),
@@ -118,7 +118,10 @@ class Game:
                     self.__changeBoard(self.selectedPiece, selected_block.row, selected_block.col,
                                        self.selectedPiece.row, self.selectedPiece.col)
                     # Move
-                    self.selectedPiece.move(selected_block.row, selected_block.col)
+                    if isinstance(self.selectedPiece, King):
+                        self.selectedPiece.move(selected_block.row, selected_block.col, self.board)
+                    else:
+                        self.selectedPiece.move(selected_block.row, selected_block.col)
                     print(self.selectedPiece)
                     if pygame.event.poll().type == PAWN_UPGRADE:
                         self.pawnUpgrade()
