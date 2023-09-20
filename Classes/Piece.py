@@ -28,7 +28,12 @@ class Piece:
     def getPossibleMoves(self, board):
         return []
 
-    def move(self, row, col, board = False):
+    def __changeBoard(self, row, col, oldRow, oldCol, board):
+        board[Block.getBoardIndexRowCol(row, col)].piece = self
+        board[Block.getBoardIndexRowCol(oldRow, oldCol)].piece = None
+
+    def move(self, row, col, board):
+        self.__changeBoard(row, col, self.row, self.col, board)
         self.row = row
         self.col = col
         self.movescount = self.movescount + 1

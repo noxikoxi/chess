@@ -4,6 +4,7 @@ from Classes.Piece import Piece, returnValidMoves
 from settings import BLOCK_SIZE
 from main import Block
 
+
 class Bishop(Piece):
     def __init__(self, row, col, color):
         super().__init__(row, col, color)
@@ -12,7 +13,7 @@ class Bishop(Piece):
 
     def __checkDiagonal(self, board):
         moves = []
-        #NE
+        # NE
         for i in range(1, 8):
             if returnValidMoves([(self.row - i, self.col + i)]):
                 block = board[Block.getBoardIndexRowCol(self.row - i, self.col + i)]
@@ -23,7 +24,7 @@ class Bishop(Piece):
                 else:
                     moves = moves + [(self.row - i, self.col + i)]
 
-        #ES
+        # ES
         for i in range(1, 8):
             if returnValidMoves([(self.row + i, self.col + i)]):
                 block = board[Block.getBoardIndexRowCol(self.row + i, self.col + i)]
@@ -34,7 +35,7 @@ class Bishop(Piece):
                 else:
                     moves = moves + [(self.row + i, self.col + i)]
 
-        #SW
+        # SW
         for i in range(1, 8):
             if returnValidMoves([(self.row + i, self.col - i)]):
                 block = board[Block.getBoardIndexRowCol(self.row + i, self.col - i)]
@@ -45,7 +46,7 @@ class Bishop(Piece):
                 else:
                     moves = moves + [(self.row + i, self.col - i)]
 
-        #WN
+        # WN
         for i in range(1, 8):
             if returnValidMoves([(self.row - i, self.col - i)]):
                 block = board[Block.getBoardIndexRowCol(self.row - i, self.col - i)]
@@ -58,6 +59,5 @@ class Bishop(Piece):
 
         return moves
 
-
     def getPossibleMoves(self, board):
-       return self.__checkDiagonal(board)
+        return self.__checkDiagonal(board)

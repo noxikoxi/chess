@@ -2,7 +2,7 @@ import pygame
 import sys
 from Classes.Players import *
 from Classes.Block import Block
-from settings import BLOCK_SIZE, WINDOW_HEIGHT, WINDOW_WIDTH, BOARD_COLORS, FONT_COLOR, OFFSET, PAWN_UPGRADE
+from settings import *
 
 
 class Game:
@@ -10,7 +10,7 @@ class Game:
         pygame.init()
         pygame.font.init()
         self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-        self.gameSurface = pygame.Surface((WINDOW_WIDTH-OFFSET, WINDOW_HEIGHT-OFFSET))
+        self.gameSurface = pygame.Surface((WINDOW_WIDTH - OFFSET, WINDOW_HEIGHT - OFFSET))
         self.turns = 0
         self.selectedPiece = None  # Only one piece may be active at one time
 
@@ -20,7 +20,7 @@ class Game:
         self.board = []
         row = 0
         for col in range(64):
-            self.board.append(Block(row, col % 8, BOARD_COLORS[0] if (row+col) % 2 == 0 else BOARD_COLORS[1]))
+            self.board.append(Block(row, col % 8, BOARD_COLORS[0] if (row + col) % 2 == 0 else BOARD_COLORS[1]))
             if col % 8 == 7 and col != 0:
                 row += 1
 
@@ -64,17 +64,29 @@ class Game:
         player.pieces.remove(self.selectedPiece)
         player.pieces.append(temp)
 
+    def castling(self):
+        if self.selectedPiece.color == 'white':
+            if self.selectedPiece.col == 6:  # short castling
+                self.board[63].piece.move(7, 5, self.board)
+            else:  # long castling
+                self.board[56].piece.move(7, 3, self.board)
+        else:  # black king
+            if self.selectedPiece.col == 6:  # short castling
+                self.board[7].piece.move(0, 5, self.board)
+            else:  # long castling
+                self.board[0].piece.move(0, 3, self.board)
+
     def draw(self):
         # background
         for block in self.board:
             pygame.draw.rect(self.gameSurface, block.color, block.rect)
         # Text
         for i in range(8):
-            self.display_surface.blit(self.game_font.render(f'{8-i}', False, FONT_COLOR),
-                                      (OFFSET/4, i * BLOCK_SIZE + OFFSET + 10))
+            self.display_surface.blit(self.game_font.render(f'{8 - i}', False, FONT_COLOR),
+                                      (OFFSET / 4, i * BLOCK_SIZE + OFFSET + 10))
         for i, text in enumerate(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']):
             self.display_surface.blit(self.game_font.render(f'{text}', False, FONT_COLOR),
-                                      (i * BLOCK_SIZE + OFFSET + BLOCK_SIZE/2 - 15, -10))
+                                      (i * BLOCK_SIZE + OFFSET + BLOCK_SIZE / 2 - 15, -10))
         # Pieces
         for piece in self.player.pieces:
             self.gameSurface.blit(piece.image, piece.getRealXY())
@@ -109,27 +121,23 @@ class Game:
                     self.board[Block.getBoardIndexRowCol(self.selectedPiece.row, self.selectedPiece.col)].resetColor()
                     self.__showPossibleMoves(reset=True)
 
-                    if selected_block.piece is not None and selected_block.piece.color != self.selectedPiece.color: # attack
+                    if selected_block.piece is not None and selected_block.piece.color != self.selectedPiece.color:  # attack
                         if selected_block.piece.color == 'white':
                             self.player.pieces.remove(selected_block.piece)
                         else:
                             self.player2.pieces.remove(selected_block.piece)
-                    # Change Piece pos in board
-                    self.__changeBoard(self.selectedPiece, selected_block.row, selected_block.col,
-                                       self.selectedPiece.row, self.selectedPiece.col)
-                    # Move
-                    if isinstance(self.selectedPiece, King):
-                        self.selectedPiece.move(selected_block.row, selected_block.col, self.board)
-                    else:
-                        self.selectedPiece.move(selected_block.row, selected_block.col)
-                    print(self.selectedPiece)
-                    if pygame.event.poll().type == PAWN_UPGRADE:
-                        self.pawnUpgrade()
-                    self.selectedPiece = None
 
-    def __changeBoard(self, piece, row, col, oldRow, oldCol):
-        self.board[Block.getBoardIndexRowCol(row, col)].piece = piece
-        self.board[Block.getBoardIndexRowCol(oldRow, oldCol)].piece = None
+                    # Move
+                    self.selectedPiece.move(selected_block.row, selected_block.col, self.board)
+
+                    print(self.selectedPiece)
+                    event = pygame.event.poll()
+                    if event.type == PAWN_UPGRADE:
+                        self.pawnUpgrade()
+                    elif event.type == CASTLING:
+                        self.castling()
+
+                    self.selectedPiece = None
 
     def __showPossibleMoves(self, reset=False):
         moves = self.selectedPiece.getPossibleMoves(self.board)

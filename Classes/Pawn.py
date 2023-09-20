@@ -50,8 +50,8 @@ class Pawn(Piece):
 
         return returnValidMoves(moves)
 
-    def move(self, row, col):
-        super().move(row, col)
+    def move(self, row, col, board):
+        super().move(row, col, board)
         if self.color == 'white' and self.row == 0 or self.color == 'black' and self.row == 7:
             pygame.event.post(pygame.event.Event(PAWN_UPGRADE))
         if self.firstMove:
