@@ -102,6 +102,13 @@ class Game:
         # mouse cursor is in game board
         if OFFSET <= mouse_pos[0] < WINDOW_WIDTH and OFFSET <= mouse_pos[1] < WINDOW_HEIGHT:
             selected_block = self.board[Block.getBoardIndexXY(mouse_pos[0], mouse_pos[1])]
+            if selected_block.piece is not None:
+                # Check Turn
+                if self.turns % 2 == 0 and selected_block.piece in self.player2.pieces and self.selectedPiece is None:
+                    return
+                elif self.turns % 2 == 1 and selected_block.piece in self.player.pieces and self.selectedPiece is None:
+                    return
+
             if selected_block.piece is None and self.selectedPiece is None:
                 pass
             elif selected_block.piece is not None and self.selectedPiece is None:  # Select
@@ -130,7 +137,6 @@ class Game:
                     # Move
                     self.selectedPiece.move(selected_block.row, selected_block.col, self.board)
 
-                    print(self.selectedPiece)
                     event = pygame.event.poll()
                     if event.type == PAWN_UPGRADE:
                         self.pawnUpgrade()
@@ -138,6 +144,8 @@ class Game:
                         self.castling()
 
                     self.selectedPiece = None
+                    self.turns = self.turns + 1
+                    print(self.turns)
 
     def __showPossibleMoves(self, reset=False):
         moves = self.selectedPiece.getPossibleMoves(self.board)
@@ -149,8 +157,6 @@ class Game:
             else:
                 if block.piece is not None:
                     if block.piece.color != self.selectedPiece.col:
-                        print(block.piece.color)
-                        print(self.selectedPiece.color)
                         block.danger()
                 else:
                     block.glow()
