@@ -27,10 +27,14 @@ class Game:
         self.player = Player('white', 0)
         self.player2 = Player('black', 0)
 
+        # logs with chess oficial format ((),())
+        self.log = []
+
     def reset(self):
         self.player.fillPieces()
         self.player2.fillPieces()
         self.turns = 0
+        self.log.clear()
 
         # Connect pieces with blocks
         for piece in self.player.pieces:
@@ -40,7 +44,6 @@ class Game:
             self.board[piece.getSquare()].piece = piece
 
     def pawnUpgrade(self):
-        print(self.selectedPiece)
         piece_name = input("Choose which piece would you like -> rook, queen, bishop, knight\n")
 
         match piece_name:
@@ -134,6 +137,10 @@ class Game:
                         else:
                             self.player2.pieces.remove(selected_block.piece)
 
+                    # Add log
+                    self.log.append(((self.selectedPiece.row, self.selectedPiece.col),
+                                    (selected_block.row, selected_block.col)))
+
                     # Move
                     self.selectedPiece.move(selected_block.row, selected_block.col, self.board)
 
@@ -145,6 +152,7 @@ class Game:
 
                     self.selectedPiece = None
                     self.turns = self.turns + 1
+
                     print(self.turns)
 
     def __showPossibleMoves(self, reset=False):
