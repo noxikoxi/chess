@@ -1,16 +1,20 @@
 import pygame.event
 from pygame.image import load
 from pygame import transform
-from Classes.Piece import Piece, returnValidMoves
+from Classes.Piece import Piece, returnValidMoves, checkValidRange
 from settings import BLOCK_SIZE, PAWN_UPGRADE
 from main import Block
 
 
 def checkIfFreeBlock(board, row, col, distance=1):
+    if checkValidRange(row, col) is not True:
+        return None
     return board[Block.getBoardIndexRowCol(row - distance, col)].piece is None
 
 
 def checkIfEnemy(board, color, row, col):
+    if checkValidRange(row, col) is not True:
+        return None
     return board[Block.getBoardIndexRowCol(row, col)].piece.color != color
 
 
@@ -20,6 +24,7 @@ class Pawn(Piece):
         temp = 'white_pawn.png' if color == 'white' else 'black_pawn.png'
         self.image = transform.scale(load(f'Assets/{temp}').convert_alpha(), (BLOCK_SIZE, BLOCK_SIZE))
         self.firstMove = True
+        self.doubleMoveTurn = -1
 
     def getPossibleMoves(self, board):
         moves = []
@@ -51,8 +56,10 @@ class Pawn(Piece):
         return returnValidMoves(moves)
 
     def move(self, row, col, board):
+        if self.firstMove:
+            self.firstMove = False
         super().move(row, col, board)
         if self.color == 'white' and self.row == 0 or self.color == 'black' and self.row == 7:
             pygame.event.post(pygame.event.Event(PAWN_UPGRADE))
-        if self.firstMove:
-            self.firstMove = False
+
+

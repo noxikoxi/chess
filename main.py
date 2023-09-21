@@ -99,6 +99,39 @@ class Game:
 
         self.display_surface.blit(self.gameSurface, (OFFSET, OFFSET))
 
+    def checkEnPassant(self):
+
+        piece1 = self.board[Block.getBoardIndexRowCol(self.selectedPiece.row,
+                                                      self.selectedPiece.col - 1)].piece if self.selectedPiece.col > 0 else None
+        piece2 = self.board[Block.getBoardIndexRowCol(self.selectedPiece.row,
+                                                      self.selectedPiece.col + 1)].piece if self.selectedPiece.col < 7 else None
+        if isinstance(piece1,
+                      Pawn) and piece1.color != self.selectedPiece.color and self.turns - piece1.doubleMoveTurn == 1:
+            return piece1
+        elif isinstance(piece2,
+                        Pawn) and piece2.color != self.selectedPiece.color and self.turns - piece2.doubleMoveTurn == 1:
+            return piece2
+        else:
+            return None
+
+    def returnEnPassantMove(self):
+        piece = self.checkEnPassant()
+        if piece is None:
+            return None
+
+        if piece.col == self.selectedPiece.col - 1:  # left move
+            if self.selectedPiece.color == 'white':
+                additionalMove = (self.selectedPiece.row - 1, self.selectedPiece.col - 1)
+            else:
+                additionalMove = (self.selectedPiece.row + 1, self.selectedPiece.col - 1)
+        else:  # right move
+            if self.selectedPiece.color == 'white':
+                additionalMove = (self.selectedPiece.row - 1, self.selectedPiece.col + 1)
+            else:
+                additionalMove = (self.selectedPiece.row + 1, self.selectedPiece.col + 1)
+
+        return additionalMove
+
     def checkMouse(self):
         mouse_pos = pygame.mouse.get_pos()
 
@@ -118,18 +151,35 @@ class Game:
                 # Select a piece
                 selected_block.glow()
                 self.selectedPiece = selected_block.piece
-                self.__showPossibleMoves()
+                self.__showPossibleMoves(moves=self.selectedPiece.getPossibleMoves(self.board))
             elif selected_block.piece == self.selectedPiece:  # Undo select and reset colors
                 selected_block.resetColor()
-                self.__showPossibleMoves(reset=True)
+                self.__showPossibleMoves(moves=self.selectedPiece.getPossibleMoves(self.board), reset=True)
                 self.selectedPiece = None
             elif self.selectedPiece is not None:  # make a move
                 moves = self.selectedPiece.getPossibleMoves(self.board)
 
+                if isinstance(self.selectedPiece, Pawn):
+                    if abs(selected_block.row - self.selectedPiece.row) == 2:
+                        self.selectedPiece.doubleMoveTurn = self.turns
+                    if self.returnEnPassantMove() is not None:
+                        moves.append(self.returnEnPassantMove())
+
                 if (selected_block.row, selected_block.col) in moves:  # make a move
                     # Reset active blocks
                     self.board[Block.getBoardIndexRowCol(self.selectedPiece.row, self.selectedPiece.col)].resetColor()
-                    self.__showPossibleMoves(reset=True)
+                    self.__showPossibleMoves(moves=self.selectedPiece.getPossibleMoves(self.board), reset=True)
+
+                    # # En Passant
+                    if (selected_block.row, selected_block.col) == (self.returnEnPassantMove()):
+                        if self.selectedPiece.color == 'white':
+                            self.player2.pieces.remove(self.board[Block.getBoardIndexRowCol(selected_block.row + 1,
+                                                                                            selected_block.col)].piece)
+                            self.board[Block.getBoardIndexRowCol(selected_block.row + 1, selected_block.col)].piece = None
+                        elif self.selectedPiece.color == 'black':
+                            self.player.pieces.remove(self.board[Block.getBoardIndexRowCol(selected_block.row - 1,
+                                                                                           selected_block.col)].piece)
+                            self.board[Block.getBoardIndexRowCol(selected_block.row - 1, selected_block.col)].piece = None
 
                     if selected_block.piece is not None and selected_block.piece.color != self.selectedPiece.color:  # attack
                         if selected_block.piece.color == 'white':
@@ -139,7 +189,7 @@ class Game:
 
                     # Add log
                     self.log.append(((self.selectedPiece.row, self.selectedPiece.col),
-                                    (selected_block.row, selected_block.col)))
+                                     (selected_block.row, selected_block.col)))
 
                     # Move
                     self.selectedPiece.move(selected_block.row, selected_block.col, self.board)
@@ -155,8 +205,16 @@ class Game:
 
                     print(self.turns)
 
-    def __showPossibleMoves(self, reset=False):
-        moves = self.selectedPiece.getPossibleMoves(self.board)
+    def __showPossibleMoves(self, moves, reset=False):
+        if isinstance(self.selectedPiece, Pawn):
+            piece = self.returnEnPassantMove()
+            if piece is not None:
+                additionalMove = self.returnEnPassantMove()  # red blocks
+                block = self.board[Block.getBoardIndexRowCol(additionalMove[0], additionalMove[1])]
+                if reset:
+                    block.resetColor()
+                else:
+                    block.danger()
 
         for move in moves:
             block = self.board[Block.getBoardIndexRowCol(move[0], move[1])]

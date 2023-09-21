@@ -2,8 +2,13 @@ from settings import BLOCK_SIZE
 from Classes.Block import Block
 
 
+def checkValidRange(row, col):
+    if 0 <= row <= 7 and 0 <= col <= 7:
+        return True
+
+
 def returnValidMoves(moves):
-    return [x for x in moves if 0 <= x[0] <= 7 and 0 <= x[1] <= 7]
+    return [x for x in moves if checkValidRange(x[0], x[1])]
 
 
 def checkStackMoves(color, moves, board):
