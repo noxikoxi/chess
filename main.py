@@ -2,6 +2,7 @@ import pygame
 import sys
 from Classes.Players import *
 from Classes.Block import Block
+from Classes.ScoreSheet import ScoreSheet
 from settings import *
 
 
@@ -9,6 +10,7 @@ class Game:
     def __init__(self):
         pygame.init()
         pygame.font.init()
+        self.score_sheet = ScoreSheet()
         self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         self.gameSurface = pygame.Surface((WINDOW_WIDTH - OFFSET, WINDOW_HEIGHT - OFFSET))
         self.turns = 0
@@ -58,6 +60,7 @@ class Game:
             case _:
                 piece = Pawn
         temp = piece(self.selectedPiece.row, self.selectedPiece.col, self.selectedPiece.color)
+        self.score_sheet.addMove(self.turns, temp, self.selectedPiece.row, self.selectedPiece.col, False, "Promotion")
         self.board[Block.getBoardIndexRowCol(self.selectedPiece.row, self.selectedPiece.col)].piece = temp
         if self.selectedPiece.color == 'white':
             player = self.player
@@ -71,13 +74,17 @@ class Game:
         if self.selectedPiece.color == 'white':
             if self.selectedPiece.col == 6:  # short castling
                 self.board[63].piece.move(7, 5, self.board)
+                self.score_sheet.addMove(self.turns, self.selectedPiece, 0, 0, False, "ShortCastling")
             else:  # long castling
                 self.board[56].piece.move(7, 3, self.board)
+                self.score_sheet.addMove(self.turns, self.selectedPiece, 0, 0, False, "LongCastling")
         else:  # black king
             if self.selectedPiece.col == 6:  # short castling
                 self.board[7].piece.move(0, 5, self.board)
+                self.score_sheet.addMove(self.turns, self.selectedPiece, 0, 0, False, "ShortCastling")
             else:  # long castling
                 self.board[0].piece.move(0, 3, self.board)
+                self.score_sheet.addMove(self.turns, self.selectedPiece, 0, 0, False, "LongCastling")
 
     def draw(self):
         # background
@@ -132,12 +139,17 @@ class Game:
                     self.__showPossibleMoves(reset=True)
 
                     if selected_block.piece is not None and selected_block.piece.color != self.selectedPiece.color:  # attack
+                        self.score_sheet.addMove(self.turns, self.selectedPiece, selected_block.row, selected_block.col, True)
                         if selected_block.piece.color == 'white':
                             self.player.pieces.remove(selected_block.piece)
                         else:
                             self.player2.pieces.remove(selected_block.piece)
 
+                    else:
+                        self.score_sheet.addMove(self.turns, self.selectedPiece, selected_block.row, selected_block.col)
+
                     # Add log
+
                     self.log.append(((self.selectedPiece.row, self.selectedPiece.col),
                                     (selected_block.row, selected_block.col)))
 
