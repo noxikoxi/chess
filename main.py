@@ -183,12 +183,14 @@ class Game:
                             self.player2.pieces.remove(self.board[Block.getBoardIndexRowCol(selected_block.row + 1,
                                                                                             selected_block.col)].piece)
                             self.board[Block.getBoardIndexRowCol(selected_block.row + 1, selected_block.col)].piece = None
+                            self.score_sheet.addMove(self.turns, self.selectedPiece, selected_block.row, selected_block.col, True, "EnPassant")
                         elif self.selectedPiece.color == 'black':
                             self.player.pieces.remove(self.board[Block.getBoardIndexRowCol(selected_block.row - 1,
                                                                                            selected_block.col)].piece)
                             self.board[Block.getBoardIndexRowCol(selected_block.row - 1, selected_block.col)].piece = None
+                            self.score_sheet.addMove(self.turns, self.selectedPiece, selected_block.row, selected_block.col, True, "EnPassant")
 
-                    if selected_block.piece is not None and selected_block.piece.color != self.selectedPiece.color:  # attack
+                    elif selected_block.piece is not None and selected_block.piece.color != self.selectedPiece.color:  # attack
                         self.score_sheet.addMove(self.turns, self.selectedPiece, selected_block.row, selected_block.col, True)
                         if selected_block.piece.color == 'white':
                             self.player.pieces.remove(selected_block.piece)

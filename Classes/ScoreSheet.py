@@ -54,8 +54,9 @@ class ScoreSheet:
             else:
                 notation = self.pieces.get(piece.__class__.__name__) + self.pieces.get(str(attacked)) + self.columns.get(str(column)) + self.rows.get(str(row)) + self.special.get(str(special))
         elif special == "Promotion":
-            print(piece.__class__.__name__)
             notation = self.columns.get(str(column)) + self.rows.get(str(row)) + self.pieces.get(piece.__class__.__name__)
+        elif special == "EnPassant":
+            notation = self.columns.get(str(piece.col)) + self.pieces.get(str(attacked)) + self.columns.get(str(column)) + self.rows.get(str(row)) + " e.p."
         else:
             notation = self.special.get(str(special))
         self.sheet.append(notation)
