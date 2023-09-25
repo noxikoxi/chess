@@ -2,6 +2,7 @@ import pygame.event
 from pygame.image import load
 from pygame import transform
 from Classes.Piece import Piece, returnValidMoves, checkStackMoves
+from Classes.Pawn import Pawn
 from settings import BLOCK_SIZE, CASTLING
 
 
@@ -11,7 +12,7 @@ class King(Piece):
         temp = 'white_king.png' if color == 'white' else 'black_king.png'
         self.image = transform.scale(load(f'Assets/{temp}').convert_alpha(), (BLOCK_SIZE, BLOCK_SIZE))
 
-    def getPossibleMoves(self, board):
+    def getPossibleMoves(self, board, enemy):
         moves = []
         if self.movescount == 0:
             moves = moves + self.checkCastling(board)
@@ -22,15 +23,24 @@ class King(Piece):
                                                           (self.row - 1, self.col + 1), (self.row - 1, self.col),
                                                           (self.row - 1, self.col - 1), (self.row, self.col - 1)]),
                                         board)
+        attackedBlocks = enemy.possibleMoves
+        for piece in enemy.pieces:
+            if isinstance(piece, Pawn):
+                attackedBlocks += piece.getAttackedBlocks()
 
-        return moves
+        possibleMoves = []
+        for move in moves:
+            if move not in attackedBlocks:
+                possibleMoves.append(move)
+
+        return possibleMoves
 
     def move(self, row, col, board):
         tmp = (self.row, self.col)
         super().move(row, col, board)
 
         # Castling Scenario
-        if abs((row + col) - (tmp[0] + tmp[1])) == 2:
+        if abs(col - tmp[1]) == 2:
             pygame.event.post(pygame.event.Event(CASTLING))
 
     def checkCastling(self, board):

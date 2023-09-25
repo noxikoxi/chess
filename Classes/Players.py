@@ -15,18 +15,33 @@ class Player:
         self.points = 0
         self.time = time
         self.pieces = []
+        self.possibleMoves = []
+
+    def updateMoves(self, board, enemy):
+        self.possibleMoves.clear()
+        for piece in self.pieces:
+            if isinstance(piece, King):
+                temp = piece.getPossibleMoves(board, enemy)
+            else:
+                temp = piece.getPossibleMoves(board)
+            self.possibleMoves += temp
+            piece.moves = temp
 
     def fillPieces(self):
         if self.color == 'white':
-            for i in range(8):
-                self.pieces.append(Pawn(6, i, self.color))
-
             for i, piece in enumerate(ROW):
                 self.pieces.append(piece(7, i, self.color))
-        else:
-            for i in range(8):
-                self.pieces.append(Pawn(1, i, self.color))
 
+            # King is on index 0
+            self.pieces[0], self.pieces[4] = self.pieces[4], self.pieces[0]
+
+            for i in range(8):
+                self.pieces.append(Pawn(6, i, self.color))
+        else:
             for i, piece in enumerate(ROW):
                 self.pieces.append(piece(0, i, self.color))
 
+            self.pieces[0], self.pieces[4] = self.pieces[4], self.pieces[0]
+
+            for i in range(8):
+                self.pieces.append(Pawn(1, i, self.color))

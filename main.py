@@ -31,6 +31,9 @@ class Game:
         # logs with chess oficial format ((),())
         self.log = []
 
+        self.reset()
+        self.update()
+
     def reset(self):
         self.player.fillPieces()
         self.player2.fillPieces()
@@ -138,6 +141,37 @@ class Game:
 
         return additionalMove
 
+    def checkedPossibleMoves(self, player, enemy):
+        for piece in player.pieces:
+            piece.moves.clear()
+
+
+
+        king = player.pieces[0]
+        old_pos = king.row, king.col
+        # King moves
+        for move in king.getPossibleMoves(self.board, enemy):
+            king.move(move[0], move[1], self.board)
+            enemy.updateMoves(self.board, player)
+            if (king.row, king.col) not in enemy.possibleMoves:
+                king.moves.append(move)
+            king.move(old_pos[0], old_pos[1], self.board)
+            enemy.updateMoves(self.board, player)
+
+
+
+
+    def isChecked(self):
+        if self.score_sheet.turns % 2 == 0:  # White Turn
+            # print(self.player.possibleMoves)
+            if (self.player.pieces[0].row, self.player.pieces[0].col) in self.player2.possibleMoves:
+                print("Check White")
+                self.checkedPossibleMoves(self.player, self.player2)
+
+        else:  # Black Turn
+            if (self.player2.pieces[0].row, self.player2.pieces[0].col) in self.player.possibleMoves:
+                print("Check Black")
+
     def checkMouse(self):
         mouse_pos = pygame.mouse.get_pos()
 
@@ -157,24 +191,24 @@ class Game:
                 # Select a piece
                 selected_block.glow()
                 self.selectedPiece = selected_block.piece
-                self.__showPossibleMoves(moves=self.selectedPiece.getPossibleMoves(self.board))
+                self.__showPossibleMoves(moves=self.selectedPiece.moves)
             elif selected_block.piece == self.selectedPiece:  # Undo select and reset colors
                 selected_block.resetColor()
-                self.__showPossibleMoves(moves=self.selectedPiece.getPossibleMoves(self.board), reset=True)
+                self.__showPossibleMoves(moves=self.selectedPiece.moves, reset=True)
                 self.selectedPiece = None
             elif self.selectedPiece is not None:  # make a move
-                moves = self.selectedPiece.getPossibleMoves(self.board)
+                moves = self.selectedPiece.moves
 
                 if isinstance(self.selectedPiece, Pawn):
                     if abs(selected_block.row - self.selectedPiece.row) == 2:
                         self.selectedPiece.doubleMoveTurn = self.score_sheet.turns
                     if self.returnEnPassantMove() is not None:
-                        moves.append(self.returnEnPassantMove())
+                        moves.append(self.returnEnPassantMove)
 
                 if (selected_block.row, selected_block.col) in moves:  # make a move
                     # Reset active blocks
                     self.board[Block.getBoardIndexRowCol(self.selectedPiece.row, self.selectedPiece.col)].resetColor()
-                    self.__showPossibleMoves(moves=self.selectedPiece.getPossibleMoves(self.board), reset=True)
+                    self.__showPossibleMoves(moves=self.selectedPiece.moves, reset=True)
 
                     # # En Passant
                     if (selected_block.row, selected_block.col) == (self.returnEnPassantMove()):
@@ -215,9 +249,12 @@ class Game:
 
                     self.selectedPiece = None
 
+                    self.update()
+
                     print(self.score_sheet.turns)
 
     def __showPossibleMoves(self, moves, reset=False):
+        # En Passant
         if isinstance(self.selectedPiece, Pawn):
             piece = self.returnEnPassantMove()
             if piece is not None:
@@ -240,7 +277,9 @@ class Game:
                     block.glow()
 
     def update(self):
-        pass
+        self.player2.updateMoves(self.board, self.player)
+        self.player.updateMoves(self.board, self.player2)
+        self.isChecked()
 
     def run(self):
         while True:
@@ -254,12 +293,10 @@ class Game:
                 if event.type == pygame.MOUSEBUTTONUP:
                     self.checkMouse()
 
-            self.update()
             self.draw()
             pygame.display.update()
 
 
 if __name__ == "__main__":
     gra = Game()
-    gra.reset()
     gra.run()

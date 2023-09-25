@@ -55,6 +55,11 @@ class Pawn(Piece):
 
         return returnValidMoves(moves)
 
+    def getAttackedBlocks(self):
+        x = -1 if self.color == 'white' else 1
+
+        return returnValidMoves([(self.row + x, self.col + x), (self.row + x, self.col - x)])
+
     def move(self, row, col, board):
         if self.firstMove:
             self.firstMove = False
