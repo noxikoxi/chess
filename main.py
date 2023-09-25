@@ -13,7 +13,6 @@ class Game:
         self.score_sheet = ScoreSheet()
         self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         self.gameSurface = pygame.Surface((WINDOW_WIDTH - OFFSET, WINDOW_HEIGHT - OFFSET))
-        self.turns = 0
         self.selectedPiece = None  # Only one piece may be active at one time
 
         pygame.display.set_caption('Chess')
@@ -35,7 +34,7 @@ class Game:
     def reset(self):
         self.player.fillPieces()
         self.player2.fillPieces()
-        self.turns = 0
+        #Dodac zapisywanie ScoreSheet
         self.log.clear()
 
         # Connect pieces with blocks
@@ -60,7 +59,7 @@ class Game:
             case _:
                 piece = Pawn
         temp = piece(self.selectedPiece.row, self.selectedPiece.col, self.selectedPiece.color)
-        self.score_sheet.addMove(self.turns, temp, self.selectedPiece.row, self.selectedPiece.col, False, "Promotion")
+        self.score_sheet.addMove(temp, self.selectedPiece.row, self.selectedPiece.col, False, "Promotion")
         self.board[Block.getBoardIndexRowCol(self.selectedPiece.row, self.selectedPiece.col)].piece = temp
         if self.selectedPiece.color == 'white':
             player = self.player
@@ -74,17 +73,17 @@ class Game:
         if self.selectedPiece.color == 'white':
             if self.selectedPiece.col == 6:  # short castling
                 self.board[63].piece.move(7, 5, self.board)
-                self.score_sheet.addMove(self.turns, self.selectedPiece, 0, 0, False, "ShortCastling")
+                self.score_sheet.addMove(self.selectedPiece, 0, 0, False, "ShortCastling")
             else:  # long castling
                 self.board[56].piece.move(7, 3, self.board)
-                self.score_sheet.addMove(self.turns, self.selectedPiece, 0, 0, False, "LongCastling")
+                self.score_sheet.addMove(self.selectedPiece, 0, 0, False, "LongCastling")
         else:  # black king
             if self.selectedPiece.col == 6:  # short castling
                 self.board[7].piece.move(0, 5, self.board)
-                self.score_sheet.addMove(self.turns, self.selectedPiece, 0, 0, False, "ShortCastling")
+                self.score_sheet.addMove(self.selectedPiece, 0, 0, False, "ShortCastling")
             else:  # long castling
                 self.board[0].piece.move(0, 3, self.board)
-                self.score_sheet.addMove(self.turns, self.selectedPiece, 0, 0, False, "LongCastling")
+                self.score_sheet.addMove(self.selectedPiece, 0, 0, False, "LongCastling")
 
     def draw(self):
         # background
@@ -113,10 +112,10 @@ class Game:
         piece2 = self.board[Block.getBoardIndexRowCol(self.selectedPiece.row,
                                                       self.selectedPiece.col + 1)].piece if self.selectedPiece.col < 7 else None
         if isinstance(piece1,
-                      Pawn) and piece1.color != self.selectedPiece.color and self.turns - piece1.doubleMoveTurn == 1:
+                      Pawn) and piece1.color != self.selectedPiece.color and self.score_sheet.turns - piece1.doubleMoveTurn == 1:
             return piece1
         elif isinstance(piece2,
-                        Pawn) and piece2.color != self.selectedPiece.color and self.turns - piece2.doubleMoveTurn == 1:
+                        Pawn) and piece2.color != self.selectedPiece.color and self.score_sheet.turns - piece2.doubleMoveTurn == 1:
             return piece2
         else:
             return None
@@ -147,9 +146,9 @@ class Game:
             selected_block = self.board[Block.getBoardIndexXY(mouse_pos[0], mouse_pos[1])]
             if selected_block.piece is not None:
                 # Check Turn
-                if self.turns % 2 == 0 and selected_block.piece in self.player2.pieces and self.selectedPiece is None:
+                if self.score_sheet.turns % 2 == 0 and selected_block.piece in self.player2.pieces and self.selectedPiece is None:
                     return
-                elif self.turns % 2 == 1 and selected_block.piece in self.player.pieces and self.selectedPiece is None:
+                elif self.score_sheet.turns % 2 == 1 and selected_block.piece in self.player.pieces and self.selectedPiece is None:
                     return
 
             if selected_block.piece is None and self.selectedPiece is None:
@@ -168,7 +167,7 @@ class Game:
 
                 if isinstance(self.selectedPiece, Pawn):
                     if abs(selected_block.row - self.selectedPiece.row) == 2:
-                        self.selectedPiece.doubleMoveTurn = self.turns
+                        self.selectedPiece.doubleMoveTurn = self.score_sheet.turns
                     if self.returnEnPassantMove() is not None:
                         moves.append(self.returnEnPassantMove())
 
@@ -183,22 +182,22 @@ class Game:
                             self.player2.pieces.remove(self.board[Block.getBoardIndexRowCol(selected_block.row + 1,
                                                                                             selected_block.col)].piece)
                             self.board[Block.getBoardIndexRowCol(selected_block.row + 1, selected_block.col)].piece = None
-                            self.score_sheet.addMove(self.turns, self.selectedPiece, selected_block.row, selected_block.col, True, "EnPassant")
+                            self.score_sheet.addMove( self.selectedPiece, selected_block.row, selected_block.col, True, "EnPassant")
                         elif self.selectedPiece.color == 'black':
                             self.player.pieces.remove(self.board[Block.getBoardIndexRowCol(selected_block.row - 1,
                                                                                            selected_block.col)].piece)
                             self.board[Block.getBoardIndexRowCol(selected_block.row - 1, selected_block.col)].piece = None
-                            self.score_sheet.addMove(self.turns, self.selectedPiece, selected_block.row, selected_block.col, True, "EnPassant")
+                            self.score_sheet.addMove( self.selectedPiece, selected_block.row, selected_block.col, True, "EnPassant")
 
                     elif selected_block.piece is not None and selected_block.piece.color != self.selectedPiece.color:  # attack
-                        self.score_sheet.addMove(self.turns, self.selectedPiece, selected_block.row, selected_block.col, True)
+                        self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col, True)
                         if selected_block.piece.color == 'white':
                             self.player.pieces.remove(selected_block.piece)
                         else:
                             self.player2.pieces.remove(selected_block.piece)
 
                     else:
-                        self.score_sheet.addMove(self.turns, self.selectedPiece, selected_block.row, selected_block.col)
+                        self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col)
 
                     # Add log
 
@@ -215,9 +214,8 @@ class Game:
                         self.castling()
 
                     self.selectedPiece = None
-                    self.turns = self.turns + 1
 
-                    print(self.turns)
+                    print(self.score_sheet.turns)
 
     def __showPossibleMoves(self, moves, reset=False):
         if isinstance(self.selectedPiece, Pawn):

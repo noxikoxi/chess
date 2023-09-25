@@ -47,7 +47,7 @@ class ScoreSheet:
         self.sheet = []
         self.turns = 0
 
-    def addMove(self, turns, piece, row, column, attacked = False, special = False):
+    def addMove(self, piece, row, column, attacked = False, special = False):
         if special is False or special == "Check":
             if attacked == True and piece.__class__.__name__ == "Pawn":
                 notation = self.columns.get(str(piece.col)) + self.pieces.get(str(attacked)) + self.columns.get(str(column)) + self.rows.get(str(row))

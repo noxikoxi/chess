@@ -21,6 +21,7 @@ class Piece:
         self.row = row
         self.col = col
         self.color = color
+        self.moves = []
         self.image = None
         self.movescount = 0
 
