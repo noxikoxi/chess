@@ -145,21 +145,20 @@ class Game:
         for piece in player.pieces:
             piece.moves.clear()
 
-
-
         king = player.pieces[0]
-        old_pos = king.row, king.col
-        # King moves
-        for move in king.getPossibleMoves(self.board, enemy):
-            king.move(move[0], move[1], self.board)
-            enemy.updateMoves(self.board, player)
-            if (king.row, king.col) not in enemy.possibleMoves:
-                king.moves.append(move)
-            king.move(old_pos[0], old_pos[1], self.board)
-            enemy.updateMoves(self.board, player)
-
-
-
+        king.moves = king.getPossibleMoves(self.board, self, enemy)
+        # old_pos = (king.row, king.col)
+        # # King moves
+        # for move in king.getPossibleMoves(self.board, enemy):
+        #     block_piece = self.board[Block.getBoardIndexRowCol(move[0], move[1])].piece
+        #     king.move(move[0], move[1], self.board)
+        #     enemy.updateMoves(self.board, self.player)
+        #     if (king.row, king.col) not in enemy.attackingMoves:
+        #         king.moves.append((move[0], move[1]))
+        #     king.move(old_pos[0], old_pos[1], self.board)
+        #     self.board[Block.getBoardIndexRowCol(move[0], move[1])].piece = block_piece
+        #
+        # enemy.updateMoves(self.board, self.player)
 
     def isChecked(self):
         if self.score_sheet.turns % 2 == 0:  # White Turn
@@ -232,6 +231,9 @@ class Game:
 
                     else:
                         self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col)
+                        print("simpleMove")
+                        print(selected_block.piece)
+                        print(self.board[Block.getBoardIndexRowCol(selected_block.row, selected_block.col)].piece)
 
                     # Add log
 

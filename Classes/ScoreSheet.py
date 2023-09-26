@@ -11,7 +11,7 @@ class ScoreSheet:
     }
 
     columns = {
-        "0" : "a",
+        "0": "a",
         "1": "b",
         "2": "c",
         "3": "d",

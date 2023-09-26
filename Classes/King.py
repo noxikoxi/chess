@@ -3,6 +3,7 @@ from pygame.image import load
 from pygame import transform
 from Classes.Piece import Piece, returnValidMoves, checkStackMoves
 from Classes.Pawn import Pawn
+from Classes.Block import Block
 from settings import BLOCK_SIZE, CASTLING
 
 
@@ -12,26 +13,29 @@ class King(Piece):
         temp = 'white_king.png' if color == 'white' else 'black_king.png'
         self.image = transform.scale(load(f'Assets/{temp}').convert_alpha(), (BLOCK_SIZE, BLOCK_SIZE))
 
-    def getPossibleMoves(self, board, enemy):
+    def getPossibleMoves(self, board, player, enemy):
         moves = []
         if self.movescount == 0:
             moves = moves + self.checkCastling(board)
 
-        moves = moves + checkStackMoves(self.color,
-                                        returnValidMoves([(self.row + 1, self.col - 1), (self.row + 1, self.col),
-                                                          (self.row + 1, self.col + 1), (self.row, self.col + 1),
-                                                          (self.row - 1, self.col + 1), (self.row - 1, self.col),
-                                                          (self.row - 1, self.col - 1), (self.row, self.col - 1)]),
-                                        board)
-        attackedBlocks = enemy.possibleMoves
-        for piece in enemy.pieces:
-            if isinstance(piece, Pawn):
-                attackedBlocks += piece.getAttackedBlocks()
+        moves = moves + self.getAttackedBlocks(board)
 
+        attackedBlocks = enemy.attackingMoves
         possibleMoves = []
+
+        pos = (self.row, self.col)
+        # Check if king will be safe after move
         for move in moves:
             if move not in attackedBlocks:
-                possibleMoves.append(move)
+                block_piece = board[Block.getBoardIndexRowCol(move[0], move[1])].piece
+                self.move(move[0], move[1], board)
+                enemy.updateMoves(board, player, attackingOnly=True)
+
+                if (self.row, self.col) not in attackedBlocks:
+                    possibleMoves.append(move)
+
+                self.move(pos[0], pos[1], board)
+                board[Block.getBoardIndexRowCol(move[0], move[1])].piece = block_piece
 
         return possibleMoves
 
@@ -42,6 +46,14 @@ class King(Piece):
         # Castling Scenario
         if abs(col - tmp[1]) == 2:
             pygame.event.post(pygame.event.Event(CASTLING))
+
+    def getAttackedBlocks(self, board):
+        return checkStackMoves(self.color,
+                               returnValidMoves([(self.row + 1, self.col - 1), (self.row + 1, self.col),
+                                                 (self.row + 1, self.col + 1), (self.row, self.col + 1),
+                                                 (self.row - 1, self.col + 1), (self.row - 1, self.col),
+                                                 (self.row - 1, self.col - 1), (self.row, self.col - 1)]),
+                               board)
 
     def checkCastling(self, board):
         moves = []

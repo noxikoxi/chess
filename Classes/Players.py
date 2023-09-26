@@ -16,16 +16,28 @@ class Player:
         self.time = time
         self.pieces = []
         self.possibleMoves = []
+        self.attackingMoves = []
 
-    def updateMoves(self, board, enemy):
-        self.possibleMoves.clear()
+    def updateMoves(self, board, enemy, attackingOnly=False):
+        if not attackingOnly:
+            self.possibleMoves.clear()
+        self.attackingMoves.clear()
+
         for piece in self.pieces:
-            if isinstance(piece, King):
-                temp = piece.getPossibleMoves(board, enemy)
+            if isinstance(piece, Pawn):
+                if not attackingOnly:
+                    temp = piece.getPossibleMoves(board)
+                self.attackingMoves += piece.getAttackedBlocks()
+            elif isinstance(piece, King):
+                if not attackingOnly:
+                    temp = piece.getPossibleMoves(board, self, enemy)
+                self.attackingMoves += piece.getAttackedBlocks(board)
             else:
                 temp = piece.getPossibleMoves(board)
-            self.possibleMoves += temp
-            piece.moves = temp
+                self.attackingMoves += temp
+            if not attackingOnly:
+                piece.moves = temp
+                self.possibleMoves += temp
 
     def fillPieces(self):
         if self.color == 'white':
