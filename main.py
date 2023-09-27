@@ -169,6 +169,7 @@ class Game:
 
         else:  # Black Turn
             if (self.player2.pieces[0].row, self.player2.pieces[0].col) in self.player.possibleMoves:
+                self.checkedPossibleMoves(self.player2, self.player)
                 print("Check Black")
 
     def checkMouse(self):
@@ -231,12 +232,8 @@ class Game:
 
                     else:
                         self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col)
-                        print("simpleMove")
-                        print(selected_block.piece)
-                        print(self.board[Block.getBoardIndexRowCol(selected_block.row, selected_block.col)].piece)
 
                     # Add log
-
                     self.log.append(((self.selectedPiece.row, self.selectedPiece.col),
                                      (selected_block.row, selected_block.col)))
 

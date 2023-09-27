@@ -37,6 +37,8 @@ class King(Piece):
                 self.move(pos[0], pos[1], board)
                 board[Block.getBoardIndexRowCol(move[0], move[1])].piece = block_piece
 
+        enemy.updateMoves(board, player, attackingOnly=True)
+
         return possibleMoves
 
     def move(self, row, col, board):
