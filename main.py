@@ -147,18 +147,6 @@ class Game:
 
         king = player.pieces[0]
         king.moves = king.getPossibleMoves(self.board, self, enemy)
-        # old_pos = (king.row, king.col)
-        # # King moves
-        # for move in king.getPossibleMoves(self.board, enemy):
-        #     block_piece = self.board[Block.getBoardIndexRowCol(move[0], move[1])].piece
-        #     king.move(move[0], move[1], self.board)
-        #     enemy.updateMoves(self.board, self.player)
-        #     if (king.row, king.col) not in enemy.attackingMoves:
-        #         king.moves.append((move[0], move[1]))
-        #     king.move(old_pos[0], old_pos[1], self.board)
-        #     self.board[Block.getBoardIndexRowCol(move[0], move[1])].piece = block_piece
-        #
-        # enemy.updateMoves(self.board, self.player)
 
     def isChecked(self):
         if self.score_sheet.turns % 2 == 0:  # White Turn
