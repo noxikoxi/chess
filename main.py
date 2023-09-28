@@ -2,6 +2,7 @@ import pygame
 import sys
 from Classes.Players import *
 from Classes.Block import Block
+from Classes.Piece import Piece
 from Classes.ScoreSheet import ScoreSheet
 from settings import *
 
@@ -147,6 +148,34 @@ class Game:
 
         king = player.pieces[0]
         king.moves = king.getPossibleMoves(self.board, self, enemy)
+
+        for piece in player.pieces:
+            if isinstance(piece, King):
+                continue
+
+            pos = (piece.row, piece.col)  # old position
+
+            # Works only for blocking attack move
+            for move in piece.getPossibleMoves(self.board):
+                block_piece = self.board[Block.getBoardIndexRowCol(move[0], move[1])].piece
+                piece.move(move[0], move[1], self.board)
+
+                if block_piece is not None:
+                    enemy.pieces.remove(block_piece)
+
+                enemy.updateMoves(self.board, player, attackingOnly=True)
+
+                if (king.row, king.col) not in enemy.attackingMoves:
+                    piece.moves.append(move)
+
+                if block_piece is not None:
+                    enemy.pieces.append(block_piece)
+
+                piece.move(pos[0], pos[1], self.board)
+                self.board[Block.getBoardIndexRowCol(move[0], move[1])].piece = block_piece
+
+        enemy.updateMoves(self.board, player, attackingOnly=False)
+
 
     def isChecked(self):
         if self.score_sheet.turns % 2 == 0:  # White Turn
