@@ -244,23 +244,24 @@ class Game:
                             self.score_sheet.addMove( self.selectedPiece, selected_block.row, selected_block.col, True, "EnPassant")
                     elif selected_block.piece is not None and selected_block.piece.color != self.selectedPiece.color:  # attack
                         self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col, True)
+                        pygame.event.post(pygame.event.Event(ATTACK))
                         if selected_block.piece.color == 'white':
                             self.player.pieces.remove(selected_block.piece)
                         else:
                             self.player2.pieces.remove(selected_block.piece)
 
-
                     # Move
                     self.selectedPiece.move(selected_block.row, selected_block.col, self.board)
 
                     event = pygame.event.poll()
-                    if event.type == pygame.NOEVENT:
+                    if event.type == ATTACK:
+                        pass
+                    elif event.type == pygame.NOEVENT:
                         self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col)
                     elif event.type == PAWN_UPGRADE:
                         self.pawnUpgrade()
                     elif event.type == CASTLING:
                         self.castling()
-
 
                     self.update()
 
