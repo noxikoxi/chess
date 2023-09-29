@@ -134,16 +134,16 @@ class Game:
 
         if piece.col == self.selectedPiece.col - 1:  # left move
             if self.selectedPiece.color == 'white':
-                additionalMove = (self.selectedPiece.row - 1, self.selectedPiece.col - 1)
+                additional_move = (self.selectedPiece.row - 1, self.selectedPiece.col - 1)
             else:
-                additionalMove = (self.selectedPiece.row + 1, self.selectedPiece.col - 1)
+                additional_move = (self.selectedPiece.row + 1, self.selectedPiece.col - 1)
         else:  # right move
             if self.selectedPiece.color == 'white':
-                additionalMove = (self.selectedPiece.row - 1, self.selectedPiece.col + 1)
+                additional_move = (self.selectedPiece.row - 1, self.selectedPiece.col + 1)
             else:
-                additionalMove = (self.selectedPiece.row + 1, self.selectedPiece.col + 1)
+                additional_move = (self.selectedPiece.row + 1, self.selectedPiece.col + 1)
 
-        return additionalMove
+        return additional_move
 
     def checkedPossibleMoves(self, player, enemy):
         for piece in player.pieces:
@@ -177,10 +177,10 @@ class Game:
                 self.board[Block.getBoardIndexRowCol(move[0], move[1])].piece = block_piece
 
         enemy.updateMoves(self.board, player, attackingOnly=False)
+        print(player.possibleMoves)
 
     def isChecked(self):
         if self.score_sheet.turns % 2 == 0:  # White Turn
-            # print(self.player.possibleMoves)
             if (self.player.pieces[0].row, self.player.pieces[0].col) in self.player2.possibleMoves:
                 print("Check White")
                 return True
@@ -191,6 +191,39 @@ class Game:
                 return True
 
         return False
+
+    def countMoves(self, player):
+        x = 0
+        for piece in player.pieces:
+            x += len(piece.moves)
+        return x
+    #Checks if there is a draw, or checkmate
+
+    def checkIfEnd(self):
+
+        # White Turn
+        if self.score_sheet.turns % 2 == 0:
+            tmp = self.countMoves(self.player)
+            if tmp == 0:
+                if self.isChecked():
+                    self.score_sheet.checked("Blackwin")
+                    return "Black Win"
+                else:
+                    self.score_sheet.checked("Draw")
+                    return "Stalemate"
+            return None
+
+        #Black Turn
+        else:
+            tmp = self.countMoves(self.player2)
+            if tmp == 0:
+                if self.isChecked():
+                    self.score_sheet.checked("Whitewin")
+                    return "White Win"
+                else:
+                    self.score_sheet.checked("Draw")
+                    return "Stalemate"
+            return None
 
     def checkMouse(self):
         mouse_pos = pygame.mouse.get_pos()
@@ -230,19 +263,19 @@ class Game:
                     self.board[Block.getBoardIndexRowCol(self.selectedPiece.row, self.selectedPiece.col)].resetColor()
                     self.__showPossibleMoves(moves=self.selectedPiece.moves, reset=True)
 
-                    # # En Passant
+                    #En Passant
                     if (selected_block.row, selected_block.col) == (self.returnEnPassantMove()):
                         if self.selectedPiece.color == 'white':
                             self.player2.pieces.remove(self.board[Block.getBoardIndexRowCol(selected_block.row + 1,
                                                                                             selected_block.col)].piece)
                             self.board[Block.getBoardIndexRowCol(selected_block.row + 1, selected_block.col)].piece = None
-                            self.score_sheet.addMove( self.selectedPiece, selected_block.row, selected_block.col, True, "EnPassant")
+                            self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col, True, "EnPassant")
                         elif self.selectedPiece.color == 'black':
                             self.player.pieces.remove(self.board[Block.getBoardIndexRowCol(selected_block.row - 1,
                                                                                            selected_block.col)].piece)
                             self.board[Block.getBoardIndexRowCol(selected_block.row - 1, selected_block.col)].piece = None
                             self.score_sheet.addMove( self.selectedPiece, selected_block.row, selected_block.col, True, "EnPassant")
-                    elif selected_block.piece is not None and selected_block.piece.color != self.selectedPiece.color:  # attack
+                    elif selected_block.piece is not None and selected_block.piece.color != self.selectedPiece.color:  #attack
                         self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col, True)
                         pygame.event.post(pygame.event.Event(ATTACK))
                         if selected_block.piece.color == 'white':
@@ -267,6 +300,7 @@ class Game:
 
                     if self.isChecked():
                         pygame.mixer.Sound.play(self.checkSound)
+                        self.score_sheet.checked()
                     elif self.score_sheet.sheet[-1] == "O-O" or self.score_sheet.sheet[-1] == "O-O-O":
                         pygame.mixer.Sound.play(self.castlingSound)
                     elif self.score_sheet.sheet[-1][1] == 'x':
@@ -276,18 +310,21 @@ class Game:
 
                     # Update MovesCount
                     self.selectedPiece.movescount += 1
-
                     self.selectedPiece = None
-
                     print(self.score_sheet.turns)
+
+                    if(self.checkIfEnd()) != None:
+                        self.score_sheet.saveSheet()
+
+                    print(self.score_sheet.displayPGN())
+
 
     def __showPossibleMoves(self, moves, reset=False):
         # En Passant
         if isinstance(self.selectedPiece, Pawn):
             piece = self.returnEnPassantMove()
             if piece is not None:
-                additionalMove = self.returnEnPassantMove()  # red blocks
-                block = self.board[Block.getBoardIndexRowCol(additionalMove[0], additionalMove[1])]
+                block = self.board[Block.getBoardIndexRowCol(piece[0], piece[1])]
                 if reset:
                     block.resetColor()
                 else:
@@ -326,7 +363,6 @@ class Game:
 
             self.draw()
             pygame.display.update()
-
 
 if __name__ == "__main__":
     gra = Game()

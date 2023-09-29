@@ -1,3 +1,5 @@
+import datetime
+import os
 class ScoreSheet:
     pieces = {
         "Pawn": "",
@@ -39,7 +41,6 @@ class ScoreSheet:
         "Whitewin": "1-0",
         "Blackwin": "0-1",
         "Draw": "1/2-1/2",
-        "Check": "+",
         "Checkmate": "#"
     }
 
@@ -64,5 +65,41 @@ class ScoreSheet:
         else:
             notation = self.special.get(str(special))
         self.sheet.append(notation)
-        print(self.sheet)
         self.turns = self.turns + 1
+
+    def checked(self, option = "Checked"):
+        if option == "Checked":
+            tmp = self.sheet[-1]
+            tmp += "+"
+            self.sheet[- 1] = tmp
+
+        else:
+            self.sheet.append(self.special.get(str(option)))
+
+    def displayPGN(self):
+        pgn = ""
+        count_moves = 1
+        count_lines = 1
+        for move in self.sheet:
+
+            if count_moves % 2 == 1:
+                pgn += f"{count_lines}. "
+            pgn += move + " "
+
+            if count_moves % 2 == 0:
+                pgn += "\n"
+                count_lines += 1
+
+            count_moves += 1
+
+        return pgn
+
+    def saveSheet(self):
+        current_directory = os.getcwd()
+        os.makedirs(f"{current_directory}/Saved Games", exist_ok=True)
+        os.chdir(f"{current_directory}/Saved Games")
+        time = datetime.datetime.now()
+        file_name = time.strftime("chess_game_%d%m%Y_%H%M%S.pgn")
+        with open(file_name, "w") as file:
+            file.write(self.displayPGN())
+        print(f"Game score sheet has been saved in a file named {file_name}")
