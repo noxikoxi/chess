@@ -4,6 +4,7 @@ from Classes.Queen import Queen
 from Classes.King import King
 from Classes.Bishop import Bishop
 from Classes.Knight import Knight
+from Classes.Block import Block
 
 ROW = [Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook]
 

@@ -43,3 +43,24 @@ class Piece:
         self.row = row
         self.col = col
         self.movescount = self.movescount + 1
+
+    # def removeMovesIfTied(self, board, player, enemy):
+    #     for move in self.moves:
+    #         block_piece = board[Block.getBoardIndexRowCol(move[0], move[1])].piece
+    #         self.move(move[0], move[1], board)
+    #
+    #         if block_piece is not None:
+    #             enemy.pieces.remove(block_piece)
+    #
+    #         enemy.updateMoves(self.board, player, attackingOnly=True)
+    #
+    #         if (king.row, king.col) not in enemy.attackingMoves:
+    #             piece.moves.append(move)
+    #
+    #         if block_piece is not None:
+    #             enemy.pieces.append(block_piece)
+    #
+    #         piece.move(pos[0], pos[1], self.board)
+    #         self.board[Block.getBoardIndexRowCol(move[0], move[1])].piece = block_piece
+    #
+    #     enemy.updateMoves(self.board, player, attackingOnly=False)

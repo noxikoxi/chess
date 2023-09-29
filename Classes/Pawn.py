@@ -23,7 +23,6 @@ class Pawn(Piece):
         super().__init__(row, col, color)
         temp = 'white_pawn.png' if color == 'white' else 'black_pawn.png'
         self.image = transform.scale(load(f'Assets/{temp}').convert_alpha(), (BLOCK_SIZE, BLOCK_SIZE))
-        self.firstMove = True
         self.doubleMoveTurn = -1
 
     def getPossibleMoves(self, board):
@@ -31,7 +30,7 @@ class Pawn(Piece):
         if self.color == 'white':
             if checkIfFreeBlock(board, self.row, self.col):
                 moves = moves + [(self.row - 1, self.col)]
-                if self.firstMove and checkIfFreeBlock(board, self.row, self.col, 2):
+                if self.row == 6 and checkIfFreeBlock(board, self.row, self.col, 2):
                     moves = moves + [(self.row - 2, self.col)]
 
             # Check if enemy in front of pawn
@@ -44,7 +43,7 @@ class Pawn(Piece):
         else:
             if checkIfFreeBlock(board, self.row, self.col, distance=-1):
                 moves = moves + [(self.row + 1, self.col)]
-                if self.firstMove and checkIfFreeBlock(board, self.row, self.col, distance=-2):
+                if self.row == 1 and checkIfFreeBlock(board, self.row, self.col, distance=-2):
                     moves = moves + [(self.row + 2, self.col)]
 
             # Check if enemy in front of pawn
@@ -61,8 +60,6 @@ class Pawn(Piece):
         return returnValidMoves([(self.row + x, self.col + x), (self.row + x, self.col - x)])
 
     def move(self, row, col, board):
-        if self.firstMove:
-            self.firstMove = False
         super().move(row, col, board)
         if self.color == 'white' and self.row == 0 or self.color == 'black' and self.row == 7:
             pygame.event.post(pygame.event.Event(PAWN_UPGRADE))

@@ -155,7 +155,6 @@ class Game:
 
             pos = (piece.row, piece.col)  # old position
 
-            # Works only for blocking attack move
             for move in piece.getPossibleMoves(self.board):
                 block_piece = self.board[Block.getBoardIndexRowCol(move[0], move[1])].piece
                 piece.move(move[0], move[1], self.board)
@@ -176,17 +175,16 @@ class Game:
 
         enemy.updateMoves(self.board, player, attackingOnly=False)
 
-
     def isChecked(self):
         if self.score_sheet.turns % 2 == 0:  # White Turn
             # print(self.player.possibleMoves)
             if (self.player.pieces[0].row, self.player.pieces[0].col) in self.player2.possibleMoves:
                 print("Check White")
-                self.checkedPossibleMoves(self.player, self.player2)
+                # self.checkedPossibleMoves(self.player, self.player2)
 
         else:  # Black Turn
             if (self.player2.pieces[0].row, self.player2.pieces[0].col) in self.player.possibleMoves:
-                self.checkedPossibleMoves(self.player2, self.player)
+                # self.checkedPossibleMoves(self.player2, self.player)
                 print("Check Black")
 
     def checkMouse(self):
@@ -296,6 +294,10 @@ class Game:
         self.player2.updateMoves(self.board, self.player)
         self.player.updateMoves(self.board, self.player2)
         self.isChecked()
+        if self.score_sheet.turns % 2 == 0:
+            self.checkedPossibleMoves(player=self.player, enemy=self.player2)
+        else:
+            self.checkedPossibleMoves(player=self.player2, enemy=self.player)
 
     def run(self):
         while True:
