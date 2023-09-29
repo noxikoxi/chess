@@ -42,4 +42,3 @@ class Piece:
         self.__changeBoard(row, col, self.row, self.col, board)
         self.row = row
         self.col = col
-        self.movescount = self.movescount + 1

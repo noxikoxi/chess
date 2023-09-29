@@ -2,7 +2,6 @@ import pygame
 import sys
 from Classes.Players import *
 from Classes.Block import Block
-from Classes.Piece import Piece
 from Classes.ScoreSheet import ScoreSheet
 from settings import *
 
@@ -11,10 +10,17 @@ class Game:
     def __init__(self):
         pygame.init()
         pygame.font.init()
+        pygame.mixer.pre_init(44100, -16, 2, 512)
         self.score_sheet = ScoreSheet()
         self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         self.gameSurface = pygame.Surface((WINDOW_WIDTH - OFFSET, WINDOW_HEIGHT - OFFSET))
         self.selectedPiece = None  # Only one piece may be active at one time
+
+        # Sounds
+        self.moveSound = pygame.mixer.Sound('Sounds/piece_move.wav')
+        self.checkSound = pygame.mixer.Sound('Sounds/king_check.wav')
+        self.castlingSound = pygame.mixer.Sound('Sounds/castling.wav')
+        self.pieceTakenSound = pygame.mixer.Sound('Sounds/piece_taken.wav')
 
         pygame.display.set_caption('Chess')
         self.game_font = pygame.font.Font("Fonts/BebasNeue-Regular.ttf", 70)
@@ -180,12 +186,14 @@ class Game:
             # print(self.player.possibleMoves)
             if (self.player.pieces[0].row, self.player.pieces[0].col) in self.player2.possibleMoves:
                 print("Check White")
-                # self.checkedPossibleMoves(self.player, self.player2)
+                return True
 
         else:  # Black Turn
             if (self.player2.pieces[0].row, self.player2.pieces[0].col) in self.player.possibleMoves:
-                # self.checkedPossibleMoves(self.player2, self.player)
                 print("Check Black")
+                return True
+
+        return False
 
     def checkMouse(self):
         mouse_pos = pygame.mouse.get_pos()
@@ -245,9 +253,6 @@ class Game:
                         else:
                             self.player2.pieces.remove(selected_block.piece)
 
-                    else:
-                        self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col)
-
                     # Add log
                     self.log.append(((self.selectedPiece.row, self.selectedPiece.col),
                                      (selected_block.row, selected_block.col)))
@@ -260,10 +265,24 @@ class Game:
                         self.pawnUpgrade()
                     elif event.type == CASTLING:
                         self.castling()
-
-                    self.selectedPiece = None
+                    else:
+                        self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col)
 
                     self.update()
+
+                    if self.isChecked():
+                        pygame.mixer.Sound.play(self.checkSound)
+                    elif self.score_sheet.sheet[-1] == "O-O" or self.score_sheet.sheet[-1] == "O-O-O":
+                        pygame.mixer.Sound.play(self.castlingSound)
+                    elif self.score_sheet.sheet[-1][1] == 'x':
+                        pygame.mixer.Sound.play(self.pieceTakenSound)
+                    else:
+                        pygame.mixer.Sound.play(self.moveSound)
+
+                    # Update MovesCount
+                    self.selectedPiece.movescount += 1
+
+                    self.selectedPiece = None
 
                     print(self.score_sheet.turns)
 
@@ -293,7 +312,6 @@ class Game:
     def update(self):
         self.player2.updateMoves(self.board, self.player)
         self.player.updateMoves(self.board, self.player2)
-        self.isChecked()
         if self.score_sheet.turns % 2 == 0:
             self.checkedPossibleMoves(player=self.player, enemy=self.player2)
         else:
