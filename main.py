@@ -35,17 +35,14 @@ class Game:
         self.player = Player('white', 0)
         self.player2 = Player('black', 0)
 
-        # logs with chess oficial format ((),())
-        self.log = []
-
         self.reset()
         self.update()
 
     def reset(self):
         self.player.fillPieces()
         self.player2.fillPieces()
+        self.score_sheet.reset()
         #Dodac zapisywanie ScoreSheet
-        self.log.clear()
 
         # Connect pieces with blocks
         for piece in self.player.pieces:
@@ -245,7 +242,6 @@ class Game:
                                                                                            selected_block.col)].piece)
                             self.board[Block.getBoardIndexRowCol(selected_block.row - 1, selected_block.col)].piece = None
                             self.score_sheet.addMove( self.selectedPiece, selected_block.row, selected_block.col, True, "EnPassant")
-
                     elif selected_block.piece is not None and selected_block.piece.color != self.selectedPiece.color:  # attack
                         self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col, True)
                         if selected_block.piece.color == 'white':
@@ -253,20 +249,18 @@ class Game:
                         else:
                             self.player2.pieces.remove(selected_block.piece)
 
-                    # Add log
-                    self.log.append(((self.selectedPiece.row, self.selectedPiece.col),
-                                     (selected_block.row, selected_block.col)))
 
                     # Move
                     self.selectedPiece.move(selected_block.row, selected_block.col, self.board)
 
                     event = pygame.event.poll()
-                    if event.type == PAWN_UPGRADE:
+                    if event.type == pygame.NOEVENT:
+                        self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col)
+                    elif event.type == PAWN_UPGRADE:
                         self.pawnUpgrade()
                     elif event.type == CASTLING:
                         self.castling()
-                    else:
-                        self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col)
+
 
                     self.update()
 

@@ -10,3 +10,4 @@
 - [ ] Add game menu
 - [ ] ScoreSheet should save game moves after finish
 - [ ] Check  if Castling blocks are not attacked
+- [ ] Add visible upgrade pawn option
