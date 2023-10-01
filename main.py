@@ -234,11 +234,11 @@ class Game:
             return True
 
         elif white_count == 1 and black_count == 2:
-            if any(isinstance(x, Bishop) for x in black.pieces):
+            if any(isinstance(x, Bishop) for x in black.pieces) or any(isinstance(x, Knight) for x in black.pieces):
                 return True
 
         elif white_count == 2 and black_count == 1:
-            if any(isinstance(x, Bishop) for x in white.pieces):
+            if any(isinstance(x, Bishop) for x in white.pieces) or any(isinstance(x, Knight) for x in white.pieces):
                 return True
 
         elif white_count == 2 and black_count == 2:
