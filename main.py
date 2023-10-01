@@ -256,7 +256,7 @@ class Game:
                     if abs(selected_block.row - self.selectedPiece.row) == 2:
                         self.selectedPiece.doubleMoveTurn = self.score_sheet.turns
                     if self.returnEnPassantMove() is not None:
-                        moves.append(self.returnEnPassantMove)
+                        moves.append(self.returnEnPassantMove())
 
                 if (selected_block.row, selected_block.col) in moves:  # make a move
                     # Reset active blocks

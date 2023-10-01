@@ -1,9 +1,8 @@
 import pygame.event
 from pygame.image import load
 from pygame import transform
-from Classes.Piece import Piece, returnValidMoves, checkValidRange
+from Classes.Piece import Piece, returnValidMoves, checkValidRange, Block
 from settings import BLOCK_SIZE, PAWN_UPGRADE
-from main import Block
 
 
 def checkIfFreeBlock(board, row, col, distance=1):

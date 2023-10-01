@@ -2,7 +2,7 @@ import pygame.event
 from pygame.image import load
 from pygame import transform
 from Classes.Piece import Piece, returnValidMoves, checkStackMoves
-from Classes.Pawn import Pawn
+from Classes.Rook import Rook
 from Classes.Block import Block
 from settings import BLOCK_SIZE, CASTLING
 
@@ -61,20 +61,22 @@ class King(Piece):
         moves = []
         if self.color == "white":
             # Check short Castling
-            if board[61].piece is None and board[62].piece is None and board[63].piece.movescount == 0:
+            if (board[61].piece is None and board[62].piece is None and isinstance(board[63].piece, Rook) and
+                    board[63].piece.movescount == 0):
                 moves = moves + [(7, 6)]
             # Check long Castling
-            if board[59].piece is None and board[58].piece is None and board[57].piece is None and board[
-                56].piece.movescount == 0:
+            if (board[59].piece is None and board[58].piece is None and board[57].piece is None and
+                    isinstance(board[56].piece, Rook) and board[56].piece.movescount == 0):
                 moves = moves + [(7, 2)]
             return moves
 
         else:
             # Check short Castling
-            if board[5].piece is None and board[6].piece is None and board[7].piece.movescount == 0:
+            if (board[5].piece is None and board[6].piece is None and isinstance(board[7].piece, Rook) and
+                    board[7].piece.movescount == 0):
                 moves = moves + [(0, 6)]
             # Check long Castling
-            if board[1].piece is None and board[2].piece is None and board[3].piece is None and board[
-                0].piece.movescount == 0:
+            if (board[1].piece is None and board[2].piece is None and board[3].piece is None and
+                    isinstance(board[0].piece, Rook) and board[0].piece.movescount == 0):
                 moves = moves + [(0, 2)]
             return moves
