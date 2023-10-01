@@ -177,7 +177,6 @@ class Game:
                 self.board[Block.getBoardIndexRowCol(move[0], move[1])].piece = block_piece
 
         enemy.updateMoves(self.board, player, attackingOnly=False)
-        print(player.possibleMoves)
 
     def isChecked(self):
         if self.score_sheet.turns % 2 == 0:  # White Turn
@@ -200,29 +199,65 @@ class Game:
     #Checks if there is a draw, or checkmate
 
     def checkIfEnd(self):
-
         # White Turn
-        if self.score_sheet.turns % 2 == 0:
-            tmp = self.countMoves(self.player)
-            if tmp == 0:
-                if self.isChecked():
-                    self.score_sheet.checked("Blackwin")
-                    return "Black Win"
-                else:
-                    self.score_sheet.checked("Draw")
-                    return "Stalemate"
+        if self.countMoves(self.player) == 0:
+            if self.isChecked():
+                self.score_sheet.checked("Blackwin")
+                return "Black Win"
+            else:
+                self.score_sheet.checked("Draw")
+                return "Stalemate"
             return None
 
-        #Black Turn
-        else:
-            tmp = self.countMoves(self.player2)
-            if tmp == 0:
-                if self.isChecked():
-                    self.score_sheet.checked("Whitewin")
-                    return "White Win"
-                else:
-                    self.score_sheet.checked("Draw")
-                    return "Stalemate"
+        # Black Turn
+        if self.countMoves(self.player2) == 0:
+            if self.isChecked():
+                self.score_sheet.checked("Whitewin")
+                return "White Win"
+            else:
+                self.score_sheet.checked("Draw")
+                return "Stalemate"
+            return None
+
+        # If both White and Black have possible moves
+
+        # Checking for Insufficient Material
+        if self.checkInsufficientMaterial(self.player, self.player2):
+            self.score_sheet.checked("Draw")
+            return "Insufficient Material"
+    def checkInsufficientMaterial(self, white, black):
+        white_count = len(white.pieces)
+        black_count = len(black.pieces)
+
+        #King vs King scenario
+        if white_count == 1 and black_count == 1:
+            return True
+
+        elif white_count == 1 and black_count == 2:
+            if any(isinstance(x, Bishop) for x in black.pieces):
+                return True
+
+        elif white_count == 2 and black_count == 1:
+            if any(isinstance(x, Bishop) for x in white.pieces):
+                return True
+
+        elif white_count == 2 and black_count == 2:
+            white_index = None
+            black_index = None
+            for index, piece in enumerate(white.pieces):
+                if isinstance(piece, Bishop):
+                    white_index = index
+
+            for index, piece in enumerate(black.pieces):
+                if isinstance(piece, Bishop):
+                    black_index = index
+
+            if white_index is not None and black_index is not None:
+                x = (white.pieces[white_index].row + white.pieces[white_index].column) % 2
+                y = (black.pieces[black_index].row + black.pieces[black_index].column) % 2
+                if x == y:
+                    return True
+
             return None
 
     def checkMouse(self):
@@ -313,7 +348,7 @@ class Game:
                     self.selectedPiece = None
                     print(self.score_sheet.turns)
 
-                    if(self.checkIfEnd()) != None:
+                    if self.checkIfEnd() is not None:
                         self.score_sheet.saveSheet()
 
                     print(self.score_sheet.displayPGN())
