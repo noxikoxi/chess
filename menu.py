@@ -1,7 +1,10 @@
+import sys
+
 import pygame
 from Classes.Button import Button
 
 pygame.init()
+pygame.font.init()
 
 SCREEN_WIDTH = 700
 SCREEN_LENGTH = 700
@@ -26,6 +29,8 @@ while True:
     pygame.display.update()
 
     for event in pygame.event.get():
-        if pygame.event == pygame.QUIT:
+        if event.type == pygame.QUIT:
             pygame.quit()
+            pygame.font.quit()
+            sys.exit()
 
