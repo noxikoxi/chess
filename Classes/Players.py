@@ -1,10 +1,7 @@
 from Classes.Pawn import Pawn
-from Classes.Rook import Rook
-from Classes.Queen import Queen
+from Classes.Queen import Queen, Rook, Bishop
 from Classes.King import King
-from Classes.Bishop import Bishop
 from Classes.Knight import Knight
-from Classes.Block import Block
 
 ROW = [Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook]
 

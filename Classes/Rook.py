@@ -1,8 +1,9 @@
 from pygame.image import load
 from pygame import transform
 from Classes.Piece import Piece, returnValidMoves
+from Classes.Block import Block
 from settings import BLOCK_SIZE
-from main import Block
+
 
 
 class Rook(Piece):

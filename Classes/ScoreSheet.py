@@ -1,5 +1,6 @@
 import datetime
 import os
+
 class ScoreSheet:
     pieces = {
         "Pawn": "",
