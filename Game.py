@@ -303,6 +303,7 @@ class Game:
 
                     # En Passant
                     if (selected_block.row, selected_block.col) == (self.returnEnPassantMove()):
+                        pygame.event.post(pygame.event.Event(EN_PASSANT))
                         if self.selectedPiece.color == 'white':
                             self.player2.pieces.remove(self.board[Block.getBoardIndexRowCol(selected_block.row + 1,
                                                                                             selected_block.col)].piece)
@@ -329,7 +330,7 @@ class Game:
                     self.selectedPiece.move(selected_block.row, selected_block.col, self.board)
 
                     event = pygame.event.poll()
-                    if event.type == ATTACK:
+                    if event.type == ATTACK or event.type == EN_PASSANT:
                         pass
                     elif event.type == pygame.NOEVENT:
                         self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col)
