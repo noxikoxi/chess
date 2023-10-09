@@ -2,8 +2,10 @@ import sys
 
 import pygame
 from menu import Menu
+from settings import Settings
 
-menu = Menu()
+settings = Settings()
+menu = Menu(settings)
 
 # Game loop
 while True:

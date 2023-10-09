@@ -62,6 +62,7 @@ class ScoreSheet:
         elif special == "Promotion":
             notation = self.columns.get(str(column)) + self.rows.get(str(row)) + self.pieces.get(piece.__class__.__name__)
         elif special == "EnPassant":
+            self.turns = self.turns - 1
             notation = self.columns.get(str(piece.col)) + self.pieces.get(str(attacked)) + self.columns.get(str(column)) + self.rows.get(str(row)) + " e.p."
         else:
             notation = self.special.get(str(special))

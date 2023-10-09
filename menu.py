@@ -7,21 +7,25 @@ from settings import WINDOW_HEIGHT, WINDOW_WIDTH, FONT_SIZE, RESIZING_OPTIONS
 class Options:
     def __init__(self, screen, font):
         self.screen = screen
-        self.back_button = Button(screen.get_width() / 2 - 100, 50, 200, 100, "Assets/quit.png", 10)
-        self.resize_button = Button(screen.get_width() / 2 - 100, 200, 200, 100, "Assets/play.png", 10)
+        self.option_1 = Button(screen.get_width() / 2 - 100, 50, 200, 100, "Assets/window_option1.png", 10)
+        self.option_2 = Button(screen.get_width() / 2 - 100, 200, 200, 100, "Assets/window_option2.png", 10)
+        self.option_3 = Button(screen.get_width() / 2 - 100, 350, 200, 100, "Assets/window_option3.png", 10)
+        self.back_button = Button(screen.get_width() / 2 - 100, 500, 200, 100, "Assets/quit.png", 10)
 
     def draw(self):
         self.screen.fill((40, 120, 20))
+        self.option_1.draw(self.screen)
+        self.option_2.draw(self.screen)
+        self.option_3.draw(self.screen)
         self.back_button.draw(self.screen)
-        self.resize_button.draw(self.screen)
         pygame.display.update()
 
 
 class Menu:
-    def __init__(self):
+    def __init__(self, settings):
         pygame.init()
         pygame.font.init()
-
+        self.settings = settings
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.display.set_caption("Chess")
         self.font = pygame.font.Font("Fonts/BebasNeue-Regular.ttf", FONT_SIZE)
@@ -31,7 +35,7 @@ class Menu:
         self.sound_button = Button(600, 600, 75, 75, "Assets/sound_on.png", 40)
 
         self.game_state = 'menu'
-        self.game = Game(self.screen, self.font)
+        self.game = Game(self.screen, self.font, self.settings)
         self.options = Options(self.screen, self.font)
 
     def resize(self, size_tuple):
@@ -47,6 +51,7 @@ class Menu:
         elif self.game_state == 'options':
             self.options.draw()
         elif self.game_state == 'play':
+            self.game.changeGameSettings(self.settings)
             self.screen.fill((0, 0, 0))
             self.game.draw()
             self.game.update()
@@ -64,5 +69,15 @@ class Menu:
         elif self.game_state == 'options':
             if self.options.back_button.isClicked(pos):
                 self.game_state = 'menu'
-            elif self.options.resize_button.isClicked(pos):
-                self.resize(RESIZING_OPTIONS[1])
+            elif self.options.option_1.isClicked(pos):
+                self.resize((self.settings.resizing_options[self.settings.picked_options][0],
+                            self.settings.resizing_options[self.settings.picked_options][1]))
+                self.settings.changeSettings(0)
+            elif self.options.option_2.isClicked(pos):
+                self.resize((self.settings.resizing_options[self.settings.picked_options][0],
+                            self.settings.resizing_options[self.settings.picked_options][1]))
+                self.settings.changeSettings(1)
+            elif self.options.option_3.isClicked(pos):
+                self.resize((self.settings.resizing_options[self.settings.picked_options][0],
+                            self.settings.resizing_options[self.settings.picked_options][1]))
+                self.settings.changeSettings(2)

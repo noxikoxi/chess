@@ -9,11 +9,12 @@ from settings import *
 
 
 class Game:
-    def __init__(self, screen, font):
+    def __init__(self, screen, font, settings):
+        self.settings = settings
         pygame.mixer.pre_init(44100, -16, 2, 512)
         self.score_sheet = ScoreSheet()
         self.display_surface = screen
-        self.gameSurface = pygame.Surface((screen.get_width() - OFFSET, screen.get_height() - OFFSET))
+        self.gameSurface = pygame.Surface((screen.get_width() - self.settings.offset, screen.get_height() - self.settings.offset))
         self.selectedPiece = None  # Only one piece may be active at one time
 
         # Sounds
@@ -49,7 +50,8 @@ class Game:
 
         for piece in self.player2.pieces:
             self.board[piece.getSquare()].piece = piece
-
+    def changeGameSettings(self, settings):
+        self.settings = settings
     def pawnUpgrade(self):
         piece_name = input("Choose which piece would you like -> rook, queen, bishop, knight\n")
 
@@ -98,10 +100,10 @@ class Game:
         # Text
         for i in range(8):
             self.display_surface.blit(self.game_font.render(f'{8 - i}', False, FONT_COLOR),
-                                      (OFFSET / 4, i * BLOCK_SIZE + OFFSET + 10))
+                                      (self.settings.offset / 4, i * self.settings.block_size + self.settings.offset + 10))
         for i, text in enumerate(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']):
             self.display_surface.blit(self.game_font.render(f'{text}', False, FONT_COLOR),
-                                      (i * BLOCK_SIZE + OFFSET + BLOCK_SIZE / 2 - 15, -10))
+                                      (i * self.settings.block_size + self.settings.offset + self.settings.block_size / 2 - 15, -10))
         # Pieces
         for piece in self.player.pieces:
             self.gameSurface.blit(piece.image, piece.getRealXY())
@@ -109,7 +111,7 @@ class Game:
         for piece in self.player2.pieces:
             self.gameSurface.blit(piece.image, piece.getRealXY())
 
-        self.display_surface.blit(self.gameSurface, (OFFSET, OFFSET))
+        self.display_surface.blit(self.gameSurface, (self.settings.offset, self.settings.offset))
 
     def checkEnPassant(self):
 
@@ -265,7 +267,7 @@ class Game:
         mouse_pos = pygame.mouse.get_pos()
 
         # mouse cursor is in game board
-        if OFFSET <= mouse_pos[0] < WINDOW_WIDTH and OFFSET <= mouse_pos[1] < WINDOW_HEIGHT:
+        if self.settings.offset <= mouse_pos[0] < self.settings.window_width and OFFSET <= mouse_pos[1] < self.settings.window_height:
             selected_block = self.board[Block.getBoardIndexXY(mouse_pos[0], mouse_pos[1])]
             if selected_block.piece is not None:
                 # Check Turn
