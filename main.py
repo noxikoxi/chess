@@ -3,13 +3,13 @@ import sys
 import pygame
 from menu import Menu
 
-pygame.init()
-pygame.font.init()
 menu = Menu()
 
-menu.draw()
-
+# Game loop
 while True:
+
+    if menu.game_state != 'play':
+        menu.checkButtons()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -17,7 +17,9 @@ while True:
             pygame.font.quit()
             sys.exit()
 
-        if event.type == pygame.MOUSEBUTTONUP:
-            mouse_pos = pygame.mouse.get_pos()
-            menu.checkButtons(mouse_pos)
+        if menu.game_state == 'play':
+            if event.type == pygame.MOUSEBUTTONUP:
+                menu.game.checkMouse()
 
+    menu.draw()
+    pygame.display.update()

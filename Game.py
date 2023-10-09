@@ -9,11 +9,11 @@ from settings import *
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, screen, font):
         pygame.mixer.pre_init(44100, -16, 2, 512)
         self.score_sheet = ScoreSheet()
-        self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-        self.gameSurface = pygame.Surface((WINDOW_WIDTH - OFFSET, WINDOW_HEIGHT - OFFSET))
+        self.display_surface = screen
+        self.gameSurface = pygame.Surface((screen.get_width() - OFFSET, screen.get_height() - OFFSET))
         self.selectedPiece = None  # Only one piece may be active at one time
 
         # Sounds
@@ -22,8 +22,7 @@ class Game:
         self.castlingSound = pygame.mixer.Sound('Sounds/castling.wav')
         self.pieceTakenSound = pygame.mixer.Sound('Sounds/piece_taken.wav')
 
-        pygame.display.set_caption('Chess')
-        self.game_font = pygame.font.Font("Fonts/BebasNeue-Regular.ttf", 70)
+        self.game_font = font
 
         self.board = []
         row = 0
@@ -42,7 +41,7 @@ class Game:
         self.player.fillPieces()
         self.player2.fillPieces()
         self.score_sheet.reset()
-        #Dodac zapisywanie ScoreSheet
+        # Dodac zapisywanie ScoreSheet
 
         # Connect pieces with blocks
         for piece in self.player.pieces:
@@ -196,7 +195,8 @@ class Game:
         for piece in player.pieces:
             x += len(piece.moves)
         return x
-    #Checks if there is a draw, or checkmate
+
+    # Checks if there is a draw, or checkmate
 
     def checkIfEnd(self):
         # White Turn
@@ -207,7 +207,6 @@ class Game:
             else:
                 self.score_sheet.checked("Draw")
                 return "Stalemate"
-            return None
 
         # Black Turn
         if self.countMoves(self.player2) == 0:
@@ -217,7 +216,6 @@ class Game:
             else:
                 self.score_sheet.checked("Draw")
                 return "Stalemate"
-            return None
 
         # If both White and Black have possible moves
 
@@ -225,11 +223,14 @@ class Game:
         if self.checkInsufficientMaterial(self.player, self.player2):
             self.score_sheet.checked("Draw")
             return "Insufficient Material"
+
+        return None
+
     def checkInsufficientMaterial(self, white, black):
         white_count = len(white.pieces)
         black_count = len(black.pieces)
 
-        #King vs King scenario
+        # King vs King scenario
         if white_count == 1 and black_count == 1:
             return True
 
@@ -298,19 +299,23 @@ class Game:
                     self.board[Block.getBoardIndexRowCol(self.selectedPiece.row, self.selectedPiece.col)].resetColor()
                     self.__showPossibleMoves(moves=self.selectedPiece.moves, reset=True)
 
-                    #En Passant
+                    # En Passant
                     if (selected_block.row, selected_block.col) == (self.returnEnPassantMove()):
                         if self.selectedPiece.color == 'white':
                             self.player2.pieces.remove(self.board[Block.getBoardIndexRowCol(selected_block.row + 1,
                                                                                             selected_block.col)].piece)
-                            self.board[Block.getBoardIndexRowCol(selected_block.row + 1, selected_block.col)].piece = None
-                            self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col, True, "EnPassant")
+                            self.board[
+                                Block.getBoardIndexRowCol(selected_block.row + 1, selected_block.col)].piece = None
+                            self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col, True,
+                                                     "EnPassant")
                         elif self.selectedPiece.color == 'black':
                             self.player.pieces.remove(self.board[Block.getBoardIndexRowCol(selected_block.row - 1,
                                                                                            selected_block.col)].piece)
-                            self.board[Block.getBoardIndexRowCol(selected_block.row - 1, selected_block.col)].piece = None
-                            self.score_sheet.addMove( self.selectedPiece, selected_block.row, selected_block.col, True, "EnPassant")
-                    elif selected_block.piece is not None and selected_block.piece.color != self.selectedPiece.color:  #attack
+                            self.board[
+                                Block.getBoardIndexRowCol(selected_block.row - 1, selected_block.col)].piece = None
+                            self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col, True,
+                                                     "EnPassant")
+                    elif selected_block.piece is not None and selected_block.piece.color != self.selectedPiece.color:  # attack
                         self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col, True)
                         pygame.event.post(pygame.event.Event(ATTACK))
                         if selected_block.piece.color == 'white':
@@ -346,13 +351,12 @@ class Game:
                     # Update MovesCount
                     self.selectedPiece.movescount += 1
                     self.selectedPiece = None
-                    print(self.score_sheet.turns)
+                    # print(self.score_sheet.turns)
 
                     if self.checkIfEnd() is not None:
                         self.score_sheet.saveSheet()
 
                     print(self.score_sheet.displayPGN())
-
 
     def __showPossibleMoves(self, moves, reset=False):
         # En Passant
@@ -384,6 +388,7 @@ class Game:
         else:
             self.checkedPossibleMoves(player=self.player2, enemy=self.player)
 
+    # LEGACY CODE
     def run(self):
         while True:
             # event loop

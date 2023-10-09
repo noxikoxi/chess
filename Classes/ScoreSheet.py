@@ -93,7 +93,7 @@ class ScoreSheet:
 
             count_moves += 1
 
-        return pgn
+        return pgn + '\n'
 
     def saveSheet(self):
         current_directory = os.getcwd()
