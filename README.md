@@ -11,3 +11,6 @@
 - [x] ScoreSheet should save game moves after finish
 - [x] Check  if Castling blocks are not attacked
 - [ ] Add visible upgrade pawn option
+- [ ] Improve unselecting of piece
+- [ ] Add icons to show players which one of them can make a move
+- [ ] Add timer for players
