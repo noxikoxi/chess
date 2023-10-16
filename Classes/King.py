@@ -1,15 +1,13 @@
 import pygame.event
-from Classes.Piece import Piece, returnValidMoves, checkStackMoves, transform, load
-from Classes.Rook import Rook
+from Classes.Piece import Piece, returnValidMoves, checkStackMoves
 from Classes.Block import Block
-from settings import BLOCK_SIZE, CASTLING
+from settings import CASTLING
 
 
 class King(Piece):
     def __init__(self, row, col, color):
         super().__init__(row, col, color)
         self.image_path = 'white_king.png' if color == 'white' else 'black_king.png'
-        self.image = transform.scale(load(f'Assets/{self.image_path }').convert_alpha(), (BLOCK_SIZE, BLOCK_SIZE))
 
     def getPossibleMoves(self, board, player, enemy):
         moves = []

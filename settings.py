@@ -28,12 +28,6 @@ class Settings:
         self.updateSettings()
 
 
-
-# (width, height, offset, font_size)
-RESIZING_OPTIONS = [(800, 800, 60, 70), (1000, 1000, 60, 70), [600, 600, 50, 60]]
-OFFSET = 60
-WINDOW_HEIGHT, WINDOW_WIDTH = 800, 800
-BLOCK_SIZE = (WINDOW_WIDTH-OFFSET) / 8
 BOARD_COLORS = ('gray', (150, 120, 160))
 FONT_COLOR = (255, 255, 255)
 FONT_SIZE = 70

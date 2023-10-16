@@ -1,13 +1,11 @@
-from Classes.Piece import Piece, returnValidMoves, transform, load
+from Classes.Piece import Piece, returnValidMoves
 from Classes.Block import Block
-from settings import BLOCK_SIZE
 
 
 class Bishop(Piece):
     def __init__(self, row, col, color):
         super().__init__(row, col, color)
         self.image_path = 'white_bishop.png' if color == 'white' else 'black_bishop.png'
-        self.image = transform.scale(load(f'Assets/{self.image_path }').convert_alpha(), (BLOCK_SIZE, BLOCK_SIZE))
 
     def __checkDiagonal(self, board):
         moves = []

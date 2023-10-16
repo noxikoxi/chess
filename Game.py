@@ -47,7 +47,7 @@ class Game:
 
         # Pieces
         for piece in self.player2.pieces + self.player.pieces:
-            piece.resizeImage(self.settings.block_size)
+            piece.loadImage(self.settings.block_size)
 
         for block in self.board:
             block.updateRect()
@@ -285,7 +285,7 @@ class Game:
         mouse_pos = pygame.mouse.get_pos()
 
         # mouse cursor is in game board
-        if self.settings.offset <= mouse_pos[0] < self.settings.window_width and OFFSET <= mouse_pos[1] < self.settings.window_height:
+        if self.settings.offset <= mouse_pos[0] < self.settings.window_width and self.settings.offset <= mouse_pos[1] < self.settings.window_height:
             selected_block = self.board[Block.getBoardIndexXY(mouse_pos[0], mouse_pos[1], self.settings.offset, self.settings.block_size)]
             if selected_block.piece is not None:
                 # Check Turn

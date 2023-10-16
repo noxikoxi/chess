@@ -44,6 +44,6 @@ class Piece:
         self.row = row
         self.col = col
 
-    def resizeImage(self, block_size):
+    def loadImage(self, block_size):
         self.image = transform.scale(load(f'Assets/{self.image_path }').convert_alpha(), (block_size, block_size))
 

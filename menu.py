@@ -1,7 +1,6 @@
 import pygame
 from Classes.Button import Button
 from Game import Game
-from settings import WINDOW_HEIGHT, WINDOW_WIDTH, FONT_SIZE
 
 
 class Options:
@@ -33,7 +32,7 @@ class Menu:
         pygame.init()
         pygame.font.init()
         self.settings = settings
-        self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+        self.screen = pygame.display.set_mode((self.settings.window_width, self.settings.window_height))
         pygame.display.set_caption("Chess")
 
         self.font = pygame.font.Font("Fonts/BebasNeue-Regular.ttf", self.settings.font_size)

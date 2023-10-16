@@ -1,12 +1,10 @@
-from Classes.Piece import Piece, returnValidMoves, checkStackMoves, transform, load
-from settings import BLOCK_SIZE
+from Classes.Piece import Piece, returnValidMoves, checkStackMoves
 
 
 class Knight(Piece):
     def __init__(self, row, col, color):
         super().__init__(row, col, color)
-        self.image_path  = 'white_knight.png' if color == 'white' else 'black_knight.png'
-        self.image = transform.scale(load(f'Assets/{self.image_path }').convert_alpha(), (BLOCK_SIZE, BLOCK_SIZE))
+        self.image_path = 'white_knight.png' if color == 'white' else 'black_knight.png'
 
     def getPossibleMoves(self, board):
         return checkStackMoves(self.color, returnValidMoves([(self.row + 2, self.col + 1), (self.row + 2, self.col - 1), (self.row - 2, self.col + 1),
