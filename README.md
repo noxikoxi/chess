@@ -6,7 +6,7 @@
 - [x] Piece cannot move if tied
 - [ ] Add winning and draw 
 - [x] Add sound
-- [ ] Add some resizing options
+- [x] Add some resizing options
 - [ ] Add game menu
 - [x] ScoreSheet should save game moves after finish
 - [x] Check  if Castling blocks are not attacked

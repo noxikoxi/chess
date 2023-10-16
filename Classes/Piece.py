@@ -2,6 +2,7 @@ from Classes.Block import Block
 from pygame import transform
 from pygame.image import load
 
+
 def checkValidRange(row, col):
     if 0 <= row <= 7 and 0 <= col <= 7:
         return True
