@@ -1,6 +1,6 @@
-from settings import BLOCK_SIZE
 from Classes.Block import Block
-
+from pygame import transform
+from pygame.image import load
 
 def checkValidRange(row, col):
     if 0 <= row <= 7 and 0 <= col <= 7:
@@ -23,13 +23,14 @@ class Piece:
         self.color = color
         self.moves = []
         self.image = None
+        self.image_path = None
         self.movescount = 0
 
     def getSquare(self):
         return self.col * 1 + self.row * 8
 
-    def getRealXY(self):
-        return self.col * BLOCK_SIZE, self.row * BLOCK_SIZE
+    def getRealXY(self, block_size):
+        return self.col * block_size, self.row * block_size
 
     def getPossibleMoves(self, board):
         return []
@@ -42,3 +43,7 @@ class Piece:
         self.__changeBoard(row, col, self.row, self.col, board)
         self.row = row
         self.col = col
+
+    def resizeImage(self, block_size):
+        self.image = transform.scale(load(f'Assets/{self.image_path }').convert_alpha(), (block_size, block_size))
+

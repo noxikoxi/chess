@@ -14,8 +14,9 @@ class Game:
         pygame.mixer.pre_init(44100, -16, 2, 512)
         self.score_sheet = ScoreSheet()
         self.display_surface = screen
-        self.gameSurface = pygame.Surface((screen.get_width() - self.settings.offset, screen.get_height() - self.settings.offset))
-        self.selectedPiece = None  # Only one piece may be active at one time
+        self.gameSurface = pygame.Surface((screen.get_width() - self.settings.offset,
+                                           screen.get_height() - self.settings.offset))
+        self.selectedPiece = None  # Only one piece may be active at time
 
         # Sounds
         self.moveSound = pygame.mixer.Sound('Sounds/piece_move.wav')
@@ -28,7 +29,8 @@ class Game:
         self.board = []
         row = 0
         for col in range(64):
-            self.board.append(Block(row, col % 8, BOARD_COLORS[0] if (row + col) % 2 == 0 else BOARD_COLORS[1]))
+            self.board.append(Block(row, col % 8, BOARD_COLORS[0] if (row + col) % 2 == 0 else BOARD_COLORS[1],
+                                    self.settings))
             if col % 8 == 7 and col != 0:
                 row += 1
 
@@ -37,6 +39,20 @@ class Game:
 
         self.reset()
         self.update()
+
+    def resizeGameSurface(self, surface):
+        self.display_surface = surface
+        self.gameSurface = pygame.Surface((self.display_surface.get_width() - self.settings.offset,
+                                           self.display_surface.get_height() - self.settings.offset))
+
+        # Pieces
+        for piece in self.player2.pieces + self.player.pieces:
+            piece.resizeImage(self.settings.block_size)
+
+        for block in self.board:
+            block.updateRect()
+
+        self.draw()
 
     def reset(self):
         self.player.fillPieces()
@@ -50,8 +66,10 @@ class Game:
 
         for piece in self.player2.pieces:
             self.board[piece.getSquare()].piece = piece
+
     def changeGameSettings(self, settings):
         self.settings = settings
+
     def pawnUpgrade(self):
         piece_name = input("Choose which piece would you like -> rook, queen, bishop, knight\n")
 
@@ -100,16 +118,16 @@ class Game:
         # Text
         for i in range(8):
             self.display_surface.blit(self.game_font.render(f'{8 - i}', False, FONT_COLOR),
-                                      (self.settings.offset / 4, i * self.settings.block_size + self.settings.offset + 10))
+                                      (self.settings.offset / 4, i * self.settings.block_size + self.settings.offset))
         for i, text in enumerate(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']):
             self.display_surface.blit(self.game_font.render(f'{text}', False, FONT_COLOR),
                                       (i * self.settings.block_size + self.settings.offset + self.settings.block_size / 2 - 15, -10))
         # Pieces
         for piece in self.player.pieces:
-            self.gameSurface.blit(piece.image, piece.getRealXY())
+            self.gameSurface.blit(piece.image, piece.getRealXY(self.settings.block_size))
 
         for piece in self.player2.pieces:
-            self.gameSurface.blit(piece.image, piece.getRealXY())
+            self.gameSurface.blit(piece.image, piece.getRealXY(self.settings.block_size))
 
         self.display_surface.blit(self.gameSurface, (self.settings.offset, self.settings.offset))
 
@@ -268,7 +286,7 @@ class Game:
 
         # mouse cursor is in game board
         if self.settings.offset <= mouse_pos[0] < self.settings.window_width and OFFSET <= mouse_pos[1] < self.settings.window_height:
-            selected_block = self.board[Block.getBoardIndexXY(mouse_pos[0], mouse_pos[1])]
+            selected_block = self.board[Block.getBoardIndexXY(mouse_pos[0], mouse_pos[1], self.settings.offset, self.settings.block_size)]
             if selected_block.piece is not None:
                 # Check Turn
                 if self.score_sheet.turns % 2 == 0 and selected_block.piece in self.player2.pieces and self.selectedPiece is None:

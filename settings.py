@@ -5,7 +5,7 @@ import os
 class Settings:
     def __init__(self):
         self.file_name = "settings.txt"
-        self.resizing_options = [[600, 600, 50, 60], [800, 800, 60, 70], [1000, 1000, 60, 70]]
+        self.resizing_options = [[600, 600, 50, 55], [800, 800, 60, 70], [1000, 1000, 60, 70]]
         self.picked_options = 1
         current_directory = os.getcwd()
         if not os.path.exists(f"{current_directory}/{self.file_name}"):

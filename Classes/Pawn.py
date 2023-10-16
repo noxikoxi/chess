@@ -1,7 +1,5 @@
 import pygame.event
-from pygame.image import load
-from pygame import transform
-from Classes.Piece import Piece, returnValidMoves, checkValidRange, Block
+from Classes.Piece import Piece, returnValidMoves, checkValidRange, Block, transform, load
 from settings import BLOCK_SIZE, PAWN_UPGRADE
 
 
@@ -20,8 +18,8 @@ def checkIfEnemy(board, color, row, col):
 class Pawn(Piece):
     def __init__(self, row, col, color):
         super().__init__(row, col, color)
-        temp = 'white_pawn.png' if color == 'white' else 'black_pawn.png'
-        self.image = transform.scale(load(f'Assets/{temp}').convert_alpha(), (BLOCK_SIZE, BLOCK_SIZE))
+        self.image_path  = 'white_pawn.png' if color == 'white' else 'black_pawn.png'
+        self.image = transform.scale(load(f'Assets/{self.image_path }').convert_alpha(), (BLOCK_SIZE, BLOCK_SIZE))
         self.doubleMoveTurn = -1
 
     def getPossibleMoves(self, board):
