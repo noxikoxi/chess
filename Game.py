@@ -93,6 +93,7 @@ class Game:
             player = self.player2
 
         player.pieces.remove(self.selectedPiece)
+        temp.loadImage(self.settings.block_size)
         player.pieces.append(temp)
 
     def castling(self):

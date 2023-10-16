@@ -40,6 +40,7 @@ class Menu:
         self.options_button = Button(50, 300, 200, 100, "Assets/options.png", 40)
         self.quit_button = Button(50, 430, 200, 100, "Assets/quit.png", 40)
         self.sound_button = Button(600, 600, 75, 75, "Assets/sound_on.png", 40)
+        # self.game_quit_button = Button(10, 10, self.settings.block_size - 20, self.settings.block_size-20)
 
         self.game_state = 'menu'
         self.game = Game(self.screen, self.font, self.settings)
