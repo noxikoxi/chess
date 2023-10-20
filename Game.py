@@ -2,10 +2,60 @@ from sys import exit
 
 import pygame
 
-from Classes.Block import Block
+from Classes.Block import Block, ImageBlock
 from Classes.Players import *
 from Classes.ScoreSheet import ScoreSheet
 from settings import *
+
+
+class PromotionBox:
+    def __init__(self, screen, settings, selectedPiece):
+        self.blocks = None
+        self.screen = screen
+        self.settings = settings
+        self.selectedPiece = selectedPiece
+
+        self.upgradeSurface = pygame.Surface((self.settings.block_size * 4, self.settings.block_size))
+        self.upgradeSurface_realX = self.screen.get_width() / 2 - self.upgradeSurface.get_width() / 2
+        self.upgradeSurface_realY = self.screen.get_height() / 2 - self.upgradeSurface.get_height() / 2
+
+        self.__updateBlocks('white')
+
+    def draw(self):
+        for i in range(len(self.blocks)):
+            self.blocks[i].draw(self.upgradeSurface)
+
+        self.screen.blit(self.upgradeSurface, (self.upgradeSurface_realX, self.upgradeSurface_realY))
+
+    def updateSelectedPiece(self, selectedPiece):
+        self.selectedPiece = selectedPiece
+        self.__updateBlocks(self.selectedPiece.color)
+
+    def __updateBlocks(self, color):
+        self.blocks = [ImageBlock(0, 0, color, self.settings, 'queen'),
+                       ImageBlock(self.settings.block_size, 0, color, self.settings, 'rook'),
+                       ImageBlock(2 * self.settings.block_size - 1, 0, color, self.settings, 'knight'),
+                       ImageBlock(3 * self.settings.block_size - 1, 0, color, self.settings, 'bishop'), ]
+
+    def checkMouse(self):
+        pos = pygame.mouse.get_pos()
+        pos = (pos[0] - self.upgradeSurface_realX, pos[1] - self.upgradeSurface_realY)
+
+        for block in self.blocks:
+            if block.rect.collidepoint(pos):
+                match block.piece_name:
+                    case 'rook':
+                        piece = Rook
+                    case 'queen':
+                        piece = Queen
+                    case 'bishop':
+                        piece = Bishop
+                    case 'knight':
+                        piece = Knight
+                    case _:
+                        piece = Pawn
+                return piece
+        return None
 
 
 class Game:
@@ -17,6 +67,10 @@ class Game:
         self.gameSurface = pygame.Surface((screen.get_width() - self.settings.offset,
                                            screen.get_height() - self.settings.offset))
         self.selectedPiece = None  # Only one piece may be active at time
+
+        # Promotion
+        self.pawnUpgradeBoardBlock = False  # If true only pawnUpgrade options may be pressed
+        self.promotionBox = PromotionBox(self.display_surface, settings, self.selectedPiece)
 
         # Sounds
         self.moveSound = pygame.mixer.Sound('Sounds/piece_move.wav')
@@ -70,32 +124,6 @@ class Game:
     def changeGameSettings(self, settings):
         self.settings = settings
 
-    def pawnUpgrade(self):
-        piece_name = input("Choose which piece would you like -> rook, queen, bishop, knight\n")
-
-        match piece_name:
-            case 'rook':
-                piece = Rook
-            case 'queen':
-                piece = Queen
-            case 'bishop':
-                piece = Bishop
-            case 'knight':
-                piece = Knight
-            case _:
-                piece = Pawn
-        temp = piece(self.selectedPiece.row, self.selectedPiece.col, self.selectedPiece.color)
-        self.score_sheet.addMove(temp, self.selectedPiece.row, self.selectedPiece.col, False, "Promotion")
-        self.board[Block.getBoardIndexRowCol(self.selectedPiece.row, self.selectedPiece.col)].piece = temp
-        if self.selectedPiece.color == 'white':
-            player = self.player
-        else:
-            player = self.player2
-
-        player.pieces.remove(self.selectedPiece)
-        temp.loadImage(self.settings.block_size)
-        player.pieces.append(temp)
-
     def castling(self):
         if self.selectedPiece.color == 'white':
             if self.selectedPiece.col == 6:  # short castling
@@ -122,7 +150,9 @@ class Game:
                                       (self.settings.offset / 4, i * self.settings.block_size + self.settings.offset))
         for i, text in enumerate(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']):
             self.display_surface.blit(self.game_font.render(f'{text}', False, FONT_COLOR),
-                                      (i * self.settings.block_size + self.settings.offset + self.settings.block_size / 2 - 15, -10))
+                                      (
+                                          i * self.settings.block_size + self.settings.offset + self.settings.block_size / 2 - 15,
+                                          -10))
         # Pieces
         for piece in self.player.pieces:
             self.gameSurface.blit(piece.image, piece.getRealXY(self.settings.block_size))
@@ -131,6 +161,9 @@ class Game:
             self.gameSurface.blit(piece.image, piece.getRealXY(self.settings.block_size))
 
         self.display_surface.blit(self.gameSurface, (self.settings.offset, self.settings.offset))
+
+        if self.pawnUpgradeBoardBlock:
+            self.promotionBox.draw()
 
     def checkEnPassant(self):
 
@@ -285,9 +318,29 @@ class Game:
     def checkMouse(self):
         mouse_pos = pygame.mouse.get_pos()
 
+        if self.pawnUpgradeBoardBlock:
+            piece = self.promotionBox.checkMouse()
+            if piece is not None:
+                temp = piece(self.promotionBox.selectedPiece.row, self.promotionBox.selectedPiece.col,
+                             self.promotionBox.selectedPiece.color)
+                self.score_sheet.addMove(temp, self.promotionBox.selectedPiece.row, self.promotionBox.selectedPiece.col,
+                                         False, "Promotion")
+                self.board[Block.getBoardIndexRowCol(self.promotionBox.selectedPiece.row,
+                                                     self.promotionBox.selectedPiece.col)].piece = temp
+                if self.promotionBox.selectedPiece.color == 'white':
+                    player = self.player
+                else:
+                    player = self.player2
+
+                player.pieces.remove(self.promotionBox.selectedPiece)
+                temp.loadImage(self.settings.block_size)
+                player.pieces.append(temp)
+                self.pawnUpgradeBoardBlock = False
         # mouse cursor is in game board
-        if self.settings.offset <= mouse_pos[0] < self.settings.window_width and self.settings.offset <= mouse_pos[1] < self.settings.window_height:
-            selected_block = self.board[Block.getBoardIndexXY(mouse_pos[0], mouse_pos[1], self.settings.offset, self.settings.block_size)]
+        elif self.settings.offset <= mouse_pos[0] < self.settings.window_width and self.settings.offset <= mouse_pos[
+            1] < self.settings.window_height:
+            selected_block = self.board[
+                Block.getBoardIndexXY(mouse_pos[0], mouse_pos[1], self.settings.offset, self.settings.block_size)]
             if selected_block.piece is not None:
                 # Check Turn
                 if self.score_sheet.turns % 2 == 0 and selected_block.piece in self.player2.pieces and self.selectedPiece is None:
@@ -354,7 +407,8 @@ class Game:
                     elif event.type == pygame.NOEVENT:
                         self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col)
                     elif event.type == PAWN_UPGRADE:
-                        self.pawnUpgrade()
+                        self.pawnUpgradeBoardBlock = True
+                        self.promotionBox.updateSelectedPiece(self.selectedPiece)
                     elif event.type == CASTLING:
                         self.castling()
 
@@ -409,19 +463,3 @@ class Game:
             self.checkedPossibleMoves(player=self.player, enemy=self.player2)
         else:
             self.checkedPossibleMoves(player=self.player2, enemy=self.player)
-
-    # LEGACY CODE
-    def run(self):
-        while True:
-            # event loop
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    pygame.font.quit()
-                    exit()
-
-                if event.type == pygame.MOUSEBUTTONUP:
-                    self.checkMouse()
-
-            self.draw()
-            pygame.display.update()

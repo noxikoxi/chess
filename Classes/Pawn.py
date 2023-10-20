@@ -4,7 +4,7 @@ from settings import PAWN_UPGRADE
 
 
 def checkIfFreeBlock(board, row, col, distance=1):
-    if checkValidRange(row, col) is not True:
+    if checkValidRange(row - distance, col) is not True:
         return None
     return board[Block.getBoardIndexRowCol(row - distance, col)].piece is None
 

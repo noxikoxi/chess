@@ -1,4 +1,7 @@
+from pygame import draw
 from pygame import Rect
+from pygame.image import load
+from pygame.transform import scale
 
 
 class Block:
@@ -38,3 +41,18 @@ class Block:
     @staticmethod
     def getBoardIndexRowCol(row, col):
         return col * 1 + row * 8
+
+
+class ImageBlock:
+    def __init__(self, x, y, color, settings, piece_name):
+        asset_path = f'Assets/{color}_{piece_name}.png'
+        self.x = x
+        self.y = y
+        self.piece_name = piece_name
+        self.image = scale(load(asset_path).convert_alpha(), (settings.block_size - 10, settings.block_size - 10))
+        self.rect = Rect(x + 2, y + 2, settings.block_size - 2, settings.block_size - 4)
+
+    def draw(self, surface):
+        draw.rect(surface, 'yellow', self.rect)
+        surface.blit(self.image, (self.x + 5, self.y + 5))
+
