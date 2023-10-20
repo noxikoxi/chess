@@ -57,6 +57,10 @@ class PromotionBox:
                 return piece
         return None
 
+    def resizeBox(self):
+        self.upgradeSurface = pygame.Surface((self.settings.block_size * 4, self.settings.block_size))
+        self.upgradeSurface_realX = self.screen.get_width() / 2 - self.upgradeSurface.get_width() / 2
+        self.upgradeSurface_realY = self.screen.get_height() / 2 - self.upgradeSurface.get_height() / 2
 
 class Game:
     def __init__(self, screen, font, settings):
@@ -105,6 +109,8 @@ class Game:
 
         for block in self.board:
             block.updateRect()
+
+        self.promotionBox.resizeBox()
 
         self.draw()
 
