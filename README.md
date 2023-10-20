@@ -14,7 +14,9 @@
 - [ ] Improve unselecting of piece
 - [ ] Add icons to show players which one of them can make a move
 - [ ] Add timer for players
+- [ ] Need option for score sheet when pawn is promoted after attack
 
 
 ### BUGS
-- [ ] Pawn cannot upgrade after attack 
+- [x] Pawn cannot upgrade after attack 
+- [x] After promotion and check, check sound should be played

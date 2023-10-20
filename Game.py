@@ -336,6 +336,12 @@ class Game:
                 temp.loadImage(self.settings.block_size)
                 player.pieces.append(temp)
                 self.pawnUpgradeBoardBlock = False
+
+                self.update()
+
+                if self.isChecked():
+                    pygame.mixer.Sound.play(self.checkSound)
+                    self.score_sheet.checked()
         # mouse cursor is in game board
         elif self.settings.offset <= mouse_pos[0] < self.settings.window_width and self.settings.offset <= mouse_pos[
             1] < self.settings.window_height:
@@ -391,8 +397,8 @@ class Game:
                             self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col, True,
                                                      "EnPassant")
                     elif selected_block.piece is not None and selected_block.piece.color != self.selectedPiece.color:  # attack
-                        self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col, True)
-                        pygame.event.post(pygame.event.Event(ATTACK))
+                        if selected_block.row != 0 and selected_block.row != 7:
+                            pygame.event.post(pygame.event.Event(ATTACK))
                         if selected_block.piece.color == 'white':
                             self.player.pieces.remove(selected_block.piece)
                         else:
@@ -400,17 +406,20 @@ class Game:
 
                     # Move
                     self.selectedPiece.move(selected_block.row, selected_block.col, self.board)
+                    print(selected_block.row)
 
                     event = pygame.event.poll()
-                    if event.type == ATTACK or event.type == EN_PASSANT:
-                        pass
-                    elif event.type == pygame.NOEVENT:
+                    if event.type == pygame.NOEVENT:
                         self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col)
                     elif event.type == PAWN_UPGRADE:
                         self.pawnUpgradeBoardBlock = True
                         self.promotionBox.updateSelectedPiece(self.selectedPiece)
                     elif event.type == CASTLING:
                         self.castling()
+                    elif event.type == ATTACK:
+                        self.score_sheet.addMove(self.selectedPiece, selected_block.row, selected_block.col, True)
+                    elif event.type == EN_PASSANT:
+                        pass
 
                     self.update()
 
