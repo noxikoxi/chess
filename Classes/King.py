@@ -1,6 +1,7 @@
 import pygame.event
 from Classes.Piece import Piece, returnValidMoves, checkStackMoves
 from Classes.Block import Block
+from Classes.Rook import Rook
 from settings import CASTLING
 
 
