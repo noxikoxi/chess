@@ -21,10 +21,10 @@ class Options:
     def resize(self, screen):
         width = screen.get_width()
         button_width = 200
-        self.option_1.updateRect(width / 2 - button_width/2, 50, button_width, 100)
-        self.option_2.updateRect(width / 2 - button_width/2, 200, button_width, 100)
-        self.option_3.updateRect(width / 2 - button_width/2, 350, button_width, 100)
-        self.back_button.updateRect(width / 2 - button_width/2, 500, button_width, 100)
+        self.option_1.updateRect(width / 2 - button_width / 2, 50, button_width, 100)
+        self.option_2.updateRect(width / 2 - button_width / 2, 200, button_width, 100)
+        self.option_3.updateRect(width / 2 - button_width / 2, 350, button_width, 100)
+        self.back_button.updateRect(width / 2 - button_width / 2, 500, button_width, 100)
 
 
 class Menu:
@@ -48,11 +48,29 @@ class Menu:
         self.resize((self.settings.resizing_options[self.settings.picked_options][0],
                      self.settings.resizing_options[self.settings.picked_options][1]))
 
+        self.game_back_to_menu_button = Button(self.screen.get_width() / 2 - 100, self.screen.get_height() / 2 + 100,
+                                               200, 100, "Assets/quit.png", 40)
+
     def resize(self, size_tuple):
         self.screen = pygame.display.set_mode((size_tuple[0], size_tuple[1]))
         self.options.resize(self.screen)
         self.game.game_font = pygame.font.Font("Fonts/BebasNeue-Regular.ttf", self.settings.font_size)
         self.game.resizeGameSurface(self.screen)
+
+    def showVictoryText(self, who):
+        font = pygame.font.Font("Fonts/BebasNeue-Regular.ttf", self.settings.font_size + 25)
+
+        if who == 'white':
+            text = 'WHITE WON'
+        elif who == 'black':
+            text = 'BLACK WON'
+        else:
+            text = 'DRAW'
+
+        self.screen.blit(font.render(f'{text}', True, 'yellow', ),
+                         (self.game.gameSurface.get_width() / 2 - font.size(text)[0] / 2 + self.settings.offset,
+                          self.game.gameSurface.get_height() / 2 - font.size(text)[
+                              1] / 2 + self.settings.offset))
 
     def draw(self):
         if self.game_state == 'menu':
@@ -64,10 +82,11 @@ class Menu:
         elif self.game_state == 'options':
             self.options.draw(self.screen)
         elif self.game_state == 'play':
-            self.game.changeGameSettings(self.settings)
             self.screen.fill((0, 0, 0))
-            self.game.draw()
             self.game.update()
+            self.game.draw()
+        elif self.game_state == 'game_end':
+            self.game_back_to_menu_button.draw(self.screen)
 
     def checkButtons(self):
         pos = pygame.mouse.get_pos()
@@ -84,13 +103,17 @@ class Menu:
                 self.game_state = 'menu'
             elif self.options.option_1.isClicked(pos):
                 self.resize((self.settings.resizing_options[self.settings.picked_options][0],
-                            self.settings.resizing_options[self.settings.picked_options][1]))
+                             self.settings.resizing_options[self.settings.picked_options][1]))
                 self.settings.changeSettings(0)
             elif self.options.option_2.isClicked(pos):
                 self.resize((self.settings.resizing_options[self.settings.picked_options][0],
-                            self.settings.resizing_options[self.settings.picked_options][1]))
+                             self.settings.resizing_options[self.settings.picked_options][1]))
                 self.settings.changeSettings(1)
             elif self.options.option_3.isClicked(pos):
                 self.resize((self.settings.resizing_options[self.settings.picked_options][0],
-                            self.settings.resizing_options[self.settings.picked_options][1]))
+                             self.settings.resizing_options[self.settings.picked_options][1]))
                 self.settings.changeSettings(2)
+        elif self.game_state == 'game_end':
+            if self.game_back_to_menu_button.isClicked(pos):
+                self.game_state = 'menu'
+                self.game.reset()

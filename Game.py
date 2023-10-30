@@ -1,5 +1,3 @@
-from sys import exit
-
 import pygame
 
 from Classes.Block import Block, ImageBlock
@@ -62,6 +60,7 @@ class PromotionBox:
         self.upgradeSurface_realX = self.screen.get_width() / 2 - self.upgradeSurface.get_width() / 2
         self.upgradeSurface_realY = self.screen.get_height() / 2 - self.upgradeSurface.get_height() / 2
 
+
 class Game:
     def __init__(self, screen, font, settings):
         self.settings = settings
@@ -98,14 +97,17 @@ class Game:
         self.reset()
         self.update()
 
+    def __loadPieceAssets(self):
+        for piece in self.player2.pieces + self.player.pieces:
+            piece.loadImage(self.settings.block_size)
+
     def resizeGameSurface(self, surface):
         self.display_surface = surface
         self.gameSurface = pygame.Surface((self.display_surface.get_width() - self.settings.offset,
                                            self.display_surface.get_height() - self.settings.offset))
 
         # Pieces
-        for piece in self.player2.pieces + self.player.pieces:
-            piece.loadImage(self.settings.block_size)
+        self.__loadPieceAssets()
 
         for block in self.board:
             block.updateRect()
@@ -115,10 +117,19 @@ class Game:
         self.draw()
 
     def reset(self):
+        self.player.resetPieces()
+        self.player2.resetPieces()
+
         self.player.fillPieces()
         self.player2.fillPieces()
         self.score_sheet.reset()
-        # Dodac zapisywanie ScoreSheet
+
+        # load assets
+        self.__loadPieceAssets()
+
+        # reset connections with pieces
+        for block in self.board:
+            block.piece = None
 
         # Connect pieces with blocks
         for piece in self.player.pieces:
@@ -151,14 +162,16 @@ class Game:
         for block in self.board:
             pygame.draw.rect(self.gameSurface, block.color, block.rect)
         # Text
+        # calculated only once
+        number_x = self.settings.offset / 2 - self.game_font.size('8')[0] / 2
+        text_y = (self.settings.offset - self.game_font.size('H')[1]) / 2 + 3
+
         for i in range(8):
-            self.display_surface.blit(self.game_font.render(f'{8 - i}', False, FONT_COLOR),
-                                      (self.settings.offset / 4, i * self.settings.block_size + self.settings.offset))
+            self.display_surface.blit(self.game_font.render(f'{8 - i}', True, FONT_COLOR),
+                                      (number_x, (i+0.5) * self.settings.block_size + self.settings.offset - self.game_font.size('8')[1] / 2))
         for i, text in enumerate(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']):
-            self.display_surface.blit(self.game_font.render(f'{text}', False, FONT_COLOR),
-                                      (
-                                          i * self.settings.block_size + self.settings.offset + self.settings.block_size / 2 - 15,
-                                          -10))
+            self.display_surface.blit(self.game_font.render(text, True, FONT_COLOR),
+                                      ((i+0.5) * self.settings.block_size + self.settings.offset - self.game_font.size(text)[0] / 2, text_y))
         # Pieces
         for piece in self.player.pieces:
             self.gameSurface.blit(piece.image, piece.getRealXY(self.settings.block_size))
@@ -170,6 +183,7 @@ class Game:
 
         if self.pawnUpgradeBoardBlock:
             self.promotionBox.draw()
+
 
     def checkEnPassant(self):
 
@@ -263,18 +277,22 @@ class Game:
         if self.countMoves(self.player) == 0:
             if self.isChecked():
                 self.score_sheet.checked("Blackwin")
+                pygame.event.post(pygame.event.Event(BLACK_WON))
                 return "Black Win"
             else:
                 self.score_sheet.checked("Draw")
+                pygame.event.post(pygame.event.Event(DRAW))
                 return "Stalemate"
 
         # Black Turn
         if self.countMoves(self.player2) == 0:
             if self.isChecked():
                 self.score_sheet.checked("Whitewin")
+                pygame.event.post(pygame.event.Event(WHITE_WON))
                 return "White Win"
             else:
                 self.score_sheet.checked("Draw")
+                pygame.event.post(pygame.event.Event(DRAW))
                 return "Stalemate"
 
         # If both White and Black have possible moves
@@ -282,6 +300,7 @@ class Game:
         # Checking for Insufficient Material
         if self.checkInsufficientMaterial(self.player, self.player2):
             self.score_sheet.checked("Draw")
+            pygame.event.post(pygame.event.Event(DRAW))
             return "Insufficient Material"
 
         return None

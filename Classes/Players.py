@@ -37,6 +37,9 @@ class Player:
                 piece.moves = temp
                 self.possibleMoves += temp
 
+    def resetPieces(self):
+        self.pieces.clear()
+
     def fillPieces(self):
         if self.color == 'white':
             for i, piece in enumerate(ROW):

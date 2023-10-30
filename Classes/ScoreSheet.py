@@ -98,9 +98,9 @@ class ScoreSheet:
     def saveSheet(self):
         current_directory = os.getcwd()
         os.makedirs(f"{current_directory}/Saved Games", exist_ok=True)
-        os.chdir(f"{current_directory}/Saved Games")
         time = datetime.datetime.now()
         file_name = time.strftime("chess_game_%d%m%Y_%H%M%S.pgn")
-        with open(file_name, "w") as file:
+        file_path = f'{current_directory}/Saved Games/{file_name}'
+        with open(file_path, "w") as file:
             file.write(self.displayPGN())
         print(f"Game score sheet has been saved in a file named {file_name}")
