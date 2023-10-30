@@ -463,8 +463,7 @@ class Game:
                     self.selectedPiece = None
                     # print(self.score_sheet.turns)
 
-                    if self.checkIfEnd() is not None:
-                        self.score_sheet.saveSheet()
+                    _ = self.checkIfEnd()
 
                     print(self.score_sheet.displayPGN())
 

@@ -45,7 +45,7 @@ class Block:
 
 class ImageBlock:
     def __init__(self, x, y, color, settings, piece_name):
-        asset_path = f'Assets/{color}_{piece_name}.png'
+        asset_path = f'Assets/pieces/{color}_{piece_name}.png'
         self.x = x
         self.y = y
         self.piece_name = piece_name

@@ -46,5 +46,5 @@ class Piece:
         self.col = col
 
     def loadImage(self, block_size):
-        self.image = transform.scale(load(f'Assets/{self.image_path }').convert_alpha(), (block_size, block_size))
+        self.image = transform.scale(load(f'Assets/pieces/{self.image_path }').convert_alpha(), (block_size, block_size))
 

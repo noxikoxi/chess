@@ -10,9 +10,6 @@ menu = Menu(settings)
 # Game loop
 while True:
 
-    if menu.game_state != 'play':
-        menu.checkButtons()
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -29,9 +26,12 @@ while True:
             menu.game_state = 'game_end'
             menu.showVictoryText('draw')
 
-        if menu.game_state == 'play':
-            if event.type == pygame.MOUSEBUTTONUP:
+        if event.type == pygame.MOUSEBUTTONUP:
+            if menu.game_state == 'play':
                 menu.game.checkMouse()
+            else:
+                pos = pygame.mouse.get_pos()
+                menu.checkButtons(pos)
 
     menu.draw()
     pygame.display.update()
