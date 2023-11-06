@@ -168,10 +168,12 @@ class Game:
 
         for i in range(8):
             self.display_surface.blit(self.game_font.render(f'{8 - i}', True, FONT_COLOR),
-                                      (number_x, (i+0.5) * self.settings.block_size + self.settings.offset - self.game_font.size('8')[1] / 2))
+                                      (number_x, (i + 0.5) * self.settings.block_size + self.settings.offset -
+                                       self.game_font.size('8')[1] / 2))
         for i, text in enumerate(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']):
             self.display_surface.blit(self.game_font.render(text, True, FONT_COLOR),
-                                      ((i+0.5) * self.settings.block_size + self.settings.offset - self.game_font.size(text)[0] / 2, text_y))
+                                      ((i + 0.5) * self.settings.block_size + self.settings.offset -
+                                       self.game_font.size(text)[0] / 2, text_y))
         # Pieces
         for piece in self.player.pieces:
             self.gameSurface.blit(piece.image, piece.getRealXY(self.settings.block_size))
@@ -183,7 +185,6 @@ class Game:
 
         if self.pawnUpgradeBoardBlock:
             self.promotionBox.draw()
-
 
     def checkEnPassant(self):
 
@@ -340,9 +341,7 @@ class Game:
 
             return None
 
-    def checkMouse(self):
-        mouse_pos = pygame.mouse.get_pos()
-
+    def checkMouse(self, mouse_pos):
         if self.pawnUpgradeBoardBlock:
             piece = self.promotionBox.checkMouse()
             if piece is not None:

@@ -28,7 +28,11 @@ while True:
 
         if event.type == pygame.MOUSEBUTTONUP:
             if menu.game_state == 'play':
-                menu.game.checkMouse()
+                pos = pygame.mouse.get_pos()
+                if menu.game_quit_button.isClicked(pos):
+                    menu.game_state = 'menu'
+                else:
+                    menu.game.checkMouse(pos)
             else:
                 pos = pygame.mouse.get_pos()
                 menu.checkButtons(pos)

@@ -6,6 +6,8 @@ class Settings:
     def __init__(self):
         self.file_name = "settings.txt"
         self.resizing_options = [[600, 600, 50, 55], [800, 800, 60, 70], [1000, 1000, 60, 70]]
+        self.large_buttons_size = [200, 100]  # [width, height]
+        self.square_buttons_size = [50, 50]  # [width, height]
         self.picked_options = 1
         current_directory = os.getcwd()
         if not os.path.exists(f"{current_directory}/{self.file_name}"):
