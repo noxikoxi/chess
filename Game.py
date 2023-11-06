@@ -94,6 +94,8 @@ class Game:
         self.player = Player('white', 0)
         self.player2 = Player('black', 0)
 
+        self.lastMove = None
+
         self.reset()
         self.update()
 
@@ -428,9 +430,11 @@ class Game:
                         else:
                             self.player2.pieces.remove(selected_block.piece)
 
+                    self.lastMove = f'{self.selectedPiece.row} {self.selectedPiece.col} {selected_block.row} {selected_block.col}'
+
                     # Move
                     self.selectedPiece.move(selected_block.row, selected_block.col, self.board)
-                    print(selected_block.row)
+                    # print(selected_block.row)
 
                     event = pygame.event.poll()
                     if event.type == pygame.NOEVENT:
@@ -457,6 +461,14 @@ class Game:
                     else:
                         pygame.mixer.Sound.play(self.moveSound)
 
+                    # Move was made
+                    if self.selectedPiece.color == 'white':
+                        pygame.event.post(pygame.event.Event(WHITE_MOVE))
+                        print('White Move')
+                    else:
+                        pygame.event.post(pygame.event.Event(BLACK_MOVE))
+                        print('Black Move')
+
                     # Update MovesCount
                     self.selectedPiece.movescount += 1
                     self.selectedPiece = None
@@ -465,6 +477,17 @@ class Game:
                     _ = self.checkIfEnd()
 
                     print(self.score_sheet.displayPGN())
+
+    def makeMove(self, scoresheetVal):
+        data = scoresheetVal.decode().split()
+        print(data)
+        blockFrom = (int(data[0]), int(data[1]))
+        blockTo = (int(data[2]), int(data[3]))
+        print(blockFrom, blockTo)
+        piece = self.board[Block.getBoardIndexRowCol(blockFrom[0], blockFrom[1])].piece
+        piece.move(blockTo[0], blockTo[1], self.board)
+        self.score_sheet.addMove(piece, blockTo[0], blockTo[1])
+
 
     def __showPossibleMoves(self, moves, reset=False):
         # En Passant
